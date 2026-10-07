@@ -330,9 +330,11 @@ export default function EarthWorkspace({ kind }: { kind: Kind }) {
             <Panel title="The NDVI screening baseline" tick="var(--ml)"><p className="note">It flags a vegetation-index decline in previously vegetated pixels. It is a transparent screening rule, not a trained model. Switch to the random forest to see held-out evidence.</p></Panel>
           ) : (
             <Panel title="What these observations can and cannot establish" tick="var(--s2)">
-              <div className="two"><ul className="ledger yes"><li><span className="lk">✓</span><span>Open-water extent on clear pixels at two dates.</span></li><li><span className="lk">✓</span><span>Direction and size of optical algae and turbidity proxy change on the same pixels.</span></li><li><span className="lk">✓</span><span>How sensitive the result is to the water mask, by switching spectral and U-Net.</span></li></ul>
+              <div className="two"><ul className="ledger yes"><li><span className="lk">✓</span><span>Open-water extent on clear pixels at two dates.</span></li><li><span className="lk">✓</span><span>Direction and size of optical algae and turbidity proxy change on the same pixels.</span></li>{meta?.unet && <li><span className="lk">✓</span><span>How sensitive the result is to the water mask, by switching spectral and U-Net.</span></li>}</ul>
                 <ul className="ledger no"><li><span className="lk">✕</span><span>Chlorophyll, NTU, sewage, bacteria, heavy metals or drinking-water safety.</span></li><li><span className="lk">✕</span><span>Anything validated against field samples: none were available.</span></li><li><span className="lk">✕</span><span>Effects of sun glint, shallow bottoms and floating plants, which remain confounders.</span></li></ul></div>
-              <p className="note">The U-Net segments water only. Its upstream project makes no water-safety claim and neither does Polaris.</p>
+              <p className="note">{meta?.unet
+                ? "The U-Net segments water only. Its upstream project makes no water-safety claim and neither does Polaris."
+                : "The pretrained U-Net is not installed here, so every figure on this sheet comes from the spectral open-water mask. The U-Net is an alternative segmenter, not a better one; where both are available they can be compared."}</p>
             </Panel>
           )}
         </div>

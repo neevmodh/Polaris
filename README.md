@@ -16,6 +16,19 @@ POLARIS/
 └── README.md
 ```
 
+## Live
+
+**https://polaris-web-production-bb75.up.railway.app** — deployed from `main` on Railway
+(`Dockerfile` + `railway.json`). One container: the Next.js server plus two Python virtual
+environments shared by the four engines.
+
+The deployed instance has no pretrained U-Net, because its weights (118 MB) and the upstream
+architecture file are not in this repository. The lake sheet therefore uses the spectral
+open-water mask throughout and says so; it reports 1,015 ha of comparable water where a local
+run with the U-Net reports 703 ha. Neither mask is the correct one — they are two segmenters,
+and the difference is the point of comparing them. Review notes and uploads live on the
+container's disk, so they do not survive a redeploy.
+
 ## Run
 
 ```
