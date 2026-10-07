@@ -18,6 +18,12 @@ RUN npm run build
 FROM python:3.12-slim-bookworm
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 NEXT_TELEMETRY_DISABLED=1 NODE_ENV=production
 
+# The slim image omits two libraries the wheels expect to find on the system:
+# libgomp (OpenMP, which LightGBM links against) and libexpat (XML, which the
+# GDAL inside rasterio links against).
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 libexpat1 \
+ && rm -rf /var/lib/apt/lists/*
+
 # Node for the web server; the Python base image already provides the interpreter.
 COPY --from=node:22-bookworm-slim /usr/local/bin/node /usr/local/bin/node
 COPY --from=node:22-bookworm-slim /usr/local/lib/node_modules /usr/local/lib/node_modules
