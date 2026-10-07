@@ -1,0 +1,13 @@
+# Engines: SCOPE (carbon) and netzero-ai (microgrid). Built against pandas 3.
+numpy==2.5.3
+pandas==3.0.6
+scipy==1.18.1
+scikit-learn==1.9.1
+joblib==1.6.0
+pyarrow==25.0.1
+lightgbm==4.7.0
+xgboost==3.4.1
+requests==2.34.2
+PyYAML==6.0.3
+Pyomo==6.10.1
+highspy==1.15.1

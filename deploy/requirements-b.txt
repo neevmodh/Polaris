@@ -1,0 +1,10 @@
+# Engines: Task3 (satellite) and task1 (air). Built against pandas 2.
+numpy==2.5.3
+pandas==2.3.3
+scipy==1.18.1
+scikit-learn==1.9.1
+joblib==1.6.0
+rasterio==1.5.2
+affine==3.0.1
+pillow==12.3.0
+requests==2.34.2

@@ -1,0 +1,10 @@
+**/.venv
+**/node_modules
+**/.next
+**/__pycache__
+**/.pytest_cache
+**/.git
+**/.env
+.e2e-shots
+docs
+**/references
