@@ -1,0 +1,337 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><title>Carbon Estimator Diagrams</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one long engineering sheet, four figures, each wide figure scrolls inside its own frame.
+   Palette: cool paper + ink, one hue per emission scope (orange fuel, blue grid, green supply chain), violet for ML. */
+:root{
+  --bg:#f2f5f8; --card:#ffffff; --ink:#13202b; --muted:#566676; --line:#b9c5d0; --soft:#e6ecf1;
+  --s1:#c2410c; --s2:#1d5fd1; --s3:#0b7a5a; --ml:#6b3fa0; --warn:#a16207;
+  --font:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e151c; --card:#16212b; --ink:#e6edf3; --muted:#93a3b1; --line:#334555; --soft:#1d2a36;
+  --s1:#f0884d; --s2:#6aa2ff; --s3:#3fc79b; --ml:#b896f0; --warn:#e3b341; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e151c; --card:#16212b; --ink:#e6edf3; --muted:#93a3b1; --line:#334555; --soft:#1d2a36;
+  --s1:#f0884d; --s2:#6aa2ff; --s3:#3fc79b; --ml:#b896f0; --warn:#e3b341; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.5;padding-inline:16px;padding-block:28px 56px}
+main{max-width:1120px;margin-inline:auto;display:flex;flex-direction:column;gap:44px}
+header h1{font-size:1.9rem;line-height:1.15;font-weight:600;margin:0 0 6px;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:0;color:var(--muted);max-width:68ch}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.sw{width:14px;height:14px;border-radius:3px;border:2px solid var(--line);background:var(--card)}
+.sw.s1{border-color:var(--s1)}.sw.s2{border-color:var(--s2)}.sw.s3{border-color:var(--s3)}.sw.ml{border-color:var(--ml)}
+.sw.dash{border-style:dashed}
+section h2{font-size:1.15rem;font-weight:600;margin:0 0 4px}
+section>p{margin:0 0 12px;color:var(--muted);max-width:72ch;font-size:14px}
+figure{margin:0}
+.frame{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
+.frame svg{display:block;min-width:760px;width:100%;height:auto}
+figcaption{margin-top:8px;font-size:13px;color:var(--muted);max-width:80ch}
+svg{color:var(--ink);font-family:var(--font)}
+svg text{fill:var(--ink)}
+svg .h{font-size:13.5px;font-weight:600}
+svg .t{font-size:12px}
+svg .sub{font-size:11.5px;fill:var(--muted)}
+svg .m{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+svg .lab{font-size:11px;fill:var(--muted);font-style:italic}
+svg .num{font-size:11px;font-weight:600;fill:var(--muted)}
+svg .box{fill:var(--card);stroke:var(--line);stroke-width:1.5}
+svg .box.s1{stroke:var(--s1)}svg .box.s2{stroke:var(--s2)}svg .box.s3{stroke:var(--s3)}svg .box.ml{stroke:var(--ml)}
+svg .box.ref{stroke-dasharray:6 4}
+svg .band{fill:var(--soft);stroke:var(--line);stroke-width:1}
+svg .ln{stroke:currentColor;stroke-width:1.5;fill:none}
+svg .ln.ml{stroke:var(--ml)}
+svg .tag{font-size:10.5px;font-weight:600;letter-spacing:.06em;fill:var(--muted)}
+/* dataset matrix */
+.matrix{min-width:780px;display:grid;grid-template-columns:130px repeat(3,minmax(0,1fr));gap:8px}
+.cell{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.45;min-width:0}
+.rowlab{font-size:11.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:10px 4px;display:flex;align-items:flex-start}
+.head{border-top-width:4px;font-weight:600;font-size:15px}
+.head small{display:block;font-weight:400;color:var(--muted);font-size:12.5px;margin-top:2px}
+.head.s1{border-top-color:var(--s1)}.head.s2{border-top-color:var(--s2)}.head.s3{border-top-color:var(--s3)}
+.c1{border-left:3px solid var(--s1)}.c2{border-left:3px solid var(--s2)}.c3{border-left:3px solid var(--s3)}
+.span2{grid-column:span 2;border-left:3px solid var(--ml)}
+.na{background:repeating-linear-gradient(135deg,var(--soft) 0 8px,var(--card) 8px 16px);color:var(--muted);border-left:3px solid var(--s3)}
+.cell b{font-weight:600}.cell code{font-family:var(--mono);font-size:12px}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:99px;border:1px solid var(--line);margin-right:4px;margin-top:3px}
+.chip.real{border-color:var(--s3);color:var(--s3)}.chip.syn{border-color:var(--warn);color:var(--warn);border-style:dashed}.chip.asm{border-color:var(--muted);color:var(--muted)}
+</style>
+
+<main>
+<header>
+  <h1>Carbon Estimator Diagrams</h1>
+  <p>Team CarbonIQ · Polaris Track 3. How the Scope 1/2/3 estimator is built, how a request moves through it, how the models are trained, and which dataset feeds each scope.</p>
+  <div class="legend">
+    <span><i class="sw s1"></i>Scope 1</span><span><i class="sw s2"></i>Scope 2</span><span><i class="sw s3"></i>Scope 3</span>
+    <span><i class="sw ml"></i>Machine learning</span><span><i class="sw dash"></i>Reference or planned data</span>
+  </div>
+</header>
+
+<section>
+  <h2>1 · System architecture</h2>
+  <p>Three modules sit between the inputs and the dashboard. Only Scope 1 and 2 use machine learning; Scope 3 stays spend-based.</p>
+  <figure>
+    <div class="frame">
+    <svg viewBox="0 0 1100 590" role="img" aria-label="Architecture: activity data feeds the calculator, company profile feeds the ML gap-filler, both feed abatement planning, which feeds the dashboard. Reference factors feed the calculator; Polaris diesel savings feed abatement.">
+      <defs><marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+
+      <text class="tag" x="20" y="130">INPUTS</text>
+      <text class="tag" x="270" y="12">MODULES</text>
+      <text class="tag" x="900" y="82">OUTPUTS</text>
+
+      <rect class="box ref" x="270" y="22" width="290" height="58" rx="8"/>
+      <text class="h" x="285" y="46">Training data</text>
+      <text class="sub" x="285" y="64">BRSR (planned) · synthetic today</text>
+      <line class="ln" x1="415" y1="80" x2="415" y2="108" marker-end="url(#a1)"/>
+
+      <rect class="box ml" x="270" y="110" width="290" height="140" rx="8"/>
+      <text class="h" x="285" y="134">2  ML gap-filler</text>
+      <text class="m" x="285" y="154">train.py · predict.py</text>
+      <text class="t" x="285" y="176">Ridge · RF · XGBoost · LightGBM</text>
+      <text class="t" x="285" y="196">grouped CV · conformal 90% · SHAP</text>
+      <text class="sub" x="285" y="222">Scope 1 and 2 only, for sites with</text>
+      <text class="sub" x="285" y="238">no metered data</text>
+
+      <rect class="box" x="270" y="270" width="290" height="150" rx="8"/>
+      <rect x="270" y="270" width="6" height="150" rx="2" fill="var(--s1)"/>
+      <rect x="276" y="270" width="6" height="150" fill="var(--s2)"/>
+      <rect x="282" y="270" width="6" height="150" rx="2" fill="var(--s3)"/>
+      <text class="h" x="302" y="294">1  Calculator</text>
+      <text class="m" x="302" y="314">calculator.py · scope3.py</text>
+      <text class="t" x="302" y="336">S1 = fuel × emission factor</text>
+      <text class="t" x="302" y="356">S2 = kWh × 0.675 kg/kWh</text>
+      <text class="t" x="302" y="376">S3 = spend ₹ × USEEIO factor</text>
+      <text class="sub" x="302" y="402">Monte Carlo gives P5–P95 range</text>
+
+      <rect class="box" x="660" y="190" width="200" height="180" rx="8"/>
+      <text class="h" x="675" y="214">3  Abatement</text>
+      <text class="m" x="675" y="234">abatement.py</text>
+      <text class="t" x="675" y="258">levers → cost curve</text>
+      <text class="t" x="675" y="278">pathway 2026–2050</text>
+      <text class="t" x="675" y="298">vs SBTi 1.5°C line</text>
+      <text class="sub" x="675" y="324">Monte Carlo P10–P90</text>
+      <text class="sub" x="675" y="340">grid decline 1–4% per year</text>
+
+      <rect class="box" x="20" y="145" width="200" height="70" rx="8"/>
+      <text class="h" x="35" y="170">Company profile</text>
+      <text class="sub" x="35" y="190">sector · activity · turnover</text>
+      <line class="ln" x1="220" y1="180" x2="270" y2="180" marker-end="url(#a1)"/>
+      <text class="lab" x="226" y="172">profile</text>
+
+      <rect class="box" x="20" y="310" width="200" height="70" rx="8"/>
+      <text class="h" x="35" y="335">Activity data</text>
+      <text class="sub" x="35" y="355">litres · kWh · spend ₹</text>
+      <line class="ln" x1="220" y1="345" x2="270" y2="345" marker-end="url(#a1)"/>
+      <text class="lab" x="224" y="337">metered</text>
+
+      <polyline class="ln" points="560,220 610,220 610,250 660,250" marker-end="url(#a1)"/>
+      <text class="lab" x="566" y="212">S1, S2</text>
+      <polyline class="ln" points="560,360 610,360 610,310 660,310" marker-end="url(#a1)"/>
+      <text class="lab" x="566" y="378">S1, S2, S3</text>
+
+      <rect class="band" x="20" y="480" width="540" height="92" rx="8"/>
+      <text class="tag" x="36" y="500">REFERENCE FACTORS (READ-ONLY)</text>
+      <text class="t" x="36" y="522">CEA v22 · FY2025-26</text><text class="m" x="36" y="540">0.675 kgCO₂/kWh</text>
+      <text class="t" x="214" y="522">EPA fuel factor</text><text class="m" x="214" y="540">diesel 2.70 kg/L</text>
+      <text class="t" x="372" y="522">EPA USEEIO v1.3</text><text class="m" x="372" y="540">1,016 sectors · USD 2022</text>
+      <line class="ln" x1="415" y1="480" x2="415" y2="422" marker-end="url(#a1)"/>
+      <text class="lab" x="425" y="456">emission factors</text>
+
+      <rect class="box s1" x="660" y="480" width="200" height="70" rx="8"/>
+      <text class="h" x="675" y="505">Polaris result</text>
+      <text class="sub" x="675" y="525">diesel saved, typed in as a %</text>
+      <line class="ln" x1="760" y1="480" x2="760" y2="372" marker-end="url(#a1)"/>
+      <text class="lab" x="770" y="432">Scope 1 lever (manual)</text>
+
+      <line class="ln" x1="560" y1="130" x2="900" y2="130" marker-end="url(#a1)"/>
+      <text class="lab" x="700" y="122">trained models</text>
+      <rect class="box ml" x="900" y="95" width="180" height="70" rx="8"/>
+      <text class="h" x="915" y="120">Model artefacts</text>
+      <text class="sub" x="915" y="140">models · metrics · SHAP</text>
+
+      <line class="ln" x1="860" y1="280" x2="900" y2="280" marker-end="url(#a1)"/>
+      <rect class="box" x="900" y="225" width="180" height="110" rx="8"/>
+      <text class="h" x="915" y="250">Streamlit dashboard</text>
+      <text class="sub" x="915" y="272">4 tabs</text>
+      <text class="t" x="915" y="292">calculator · ML estimate</text>
+      <text class="t" x="915" y="310">abatement · model report</text>
+    </svg>
+    </div>
+    <figcaption>Activity data goes straight to the calculator. A site without it goes through the ML gap-filler using its profile. Both feed the abatement planner, which starts from either the calculator or the ML estimate. The Polaris diesel saving is entered by hand as a percentage today; it is not yet linked to a Polaris simulation. The dashboard tabs read all three modules.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>2 · Request flowchart</h2>
+  <p>What happens when someone asks for a footprint, from the first question to the 2050 pathway.</p>
+  <figure>
+    <div class="frame">
+    <svg viewBox="0 0 1000 790" role="img" aria-label="Flowchart: if metered data exists use the calculator; otherwise use the ML gap-filler with a range check; Scope 3 is always spend-based; results merge into a footprint with uncertainty, then levers, cost curve and pathway.">
+      <defs><marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+
+      <rect class="box" x="400" y="15" width="200" height="44" rx="22"/>
+      <text class="h" x="500" y="42" text-anchor="middle">Site or company to assess</text>
+      <line class="ln" x1="500" y1="59" x2="500" y2="88" marker-end="url(#a2)"/>
+
+      <polygon class="box" points="500,89 650,135 500,181 350,135"/>
+      <text class="t" x="500" y="131" text-anchor="middle">Metered fuel and</text>
+      <text class="t" x="500" y="148" text-anchor="middle">kWh available?</text>
+
+      <polyline class="ln" points="350,135 250,135 250,213" marker-end="url(#a2)"/>
+      <text class="lab" x="296" y="127">yes</text>
+      <polyline class="ln" points="650,135 750,135 750,213" marker-end="url(#a2)"/>
+      <text class="lab" x="694" y="127">no</text>
+
+      <rect class="box" x="100" y="215" width="300" height="112" rx="8"/>
+      <text class="h" x="116" y="240">Calculator</text>
+      <text class="t" x="116" y="262"><tspan fill="var(--s1)" font-weight="600">S1</tspan>  fuel × factor (diesel 2.70 kg/L)</text>
+      <text class="t" x="116" y="282"><tspan fill="var(--s2)" font-weight="600">S2</tspan>  kWh × 0.675 (CEA v22)</text>
+      <text class="t" x="116" y="302"><tspan fill="var(--s3)" font-weight="600">S3</tspan>  spend × USEEIO factor</text>
+      <text class="sub" x="116" y="319">Monte Carlo on every factor</text>
+
+      <rect class="box ml" x="600" y="215" width="300" height="112" rx="8"/>
+      <text class="h" x="616" y="240">ML gap-filler (S1, S2)</text>
+      <text class="t" x="616" y="262">inputs: sector, activity, turnover</text>
+      <text class="t" x="616" y="282">best of 4 models by grouped CV</text>
+      <text class="t" x="616" y="302">output: estimate + 90% interval</text>
+
+      <line class="ln" x1="750" y1="327" x2="750" y2="357" marker-end="url(#a2)"/>
+      <rect class="box" x="600" y="359" width="300" height="62" rx="8"/>
+      <text class="h" x="616" y="381">Range check</text>
+      <text class="sub" x="616" y="399">warns on unseen sector, out-of-range</text>
+      <text class="sub" x="616" y="414">turnover, or years past the data</text>
+
+      <line class="ln" x1="750" y1="421" x2="750" y2="449" marker-end="url(#a2)"/>
+      <rect class="box s3" x="600" y="451" width="300" height="62" rx="8"/>
+      <text class="h" x="616" y="473">Scope 3: spend × USEEIO</text>
+      <text class="sub" x="616" y="491">needs spend data · never ML</text>
+
+      <polyline class="ln" points="250,327 250,592 350,592" marker-end="url(#a2)"/>
+      <text class="lab" x="258" y="460">point estimate</text>
+      <text class="lab" x="258" y="476">+ P5–P95 range</text>
+      <polyline class="ln" points="750,513 750,592 650,592" marker-end="url(#a2)"/>
+
+      <rect class="box" x="350" y="560" width="300" height="64" rx="8"/>
+      <text class="h" x="500" y="586" text-anchor="middle">Footprint = S1 + S2 + S3</text>
+      <text class="sub" x="500" y="606" text-anchor="middle">with its uncertainty band</text>
+
+      <polyline class="ln" points="500,624 500,638 210,638 210,660" marker-end="url(#a2)"/>
+      <text class="lab" x="226" y="632">baseline</text>
+
+      <rect class="box" x="80" y="662" width="260" height="92" rx="8"/>
+      <text class="h" x="96" y="686">Pick levers</text>
+      <text class="t" x="96" y="708">Polaris dispatch · solar</text>
+      <text class="t" x="96" y="728">green PPA · supplier cut</text>
+      <line class="ln" x1="340" y1="708" x2="370" y2="708" marker-end="url(#a2)"/>
+
+      <rect class="box" x="372" y="662" width="260" height="92" rx="8"/>
+      <text class="h" x="388" y="686">Cost curve (MACC)</text>
+      <text class="t" x="388" y="708">₹ per tCO₂e, cheapest first</text>
+      <text class="sub" x="388" y="728">negative cost = saves money</text>
+      <line class="ln" x1="632" y1="708" x2="662" y2="708" marker-end="url(#a2)"/>
+
+      <rect class="box" x="664" y="662" width="260" height="92" rx="8"/>
+      <text class="h" x="680" y="686">Pathway 2026–2050</text>
+      <text class="t" x="680" y="708">P10–P90 band</text>
+      <text class="t" x="680" y="728">vs SBTi 1.5°C (−4.2% a year)</text>
+    </svg>
+    </div>
+    <figcaption>The only branch is whether metered data exists. Scope 3 is always spend-based, and is left out when no spend is given. The baseline for levers can be either branch. Solar and PPA abatement are capped at the grid kWh actually drawn, so levers cannot claim more than Scope 2.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>3 · Model training pipeline</h2>
+  <p>Nine steps run by <span style="font-family:var(--mono);font-size:13px">make train</span>, once per target (Scope 1, Scope 2). The test set is touched only at step 8.</p>
+  <figure>
+    <div class="frame">
+    <svg viewBox="0 0 1100 370" role="img" aria-label="Training pipeline in nine steps: load table, drop unusable features, split by company, tune four models, select by cross-validation, overfit audit, conformal intervals, score on test, save.">
+      <defs><marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+
+      <g>
+      <rect class="box ref" x="20" y="40" width="190" height="110" rx="8"/><text class="num" x="34" y="60">1</text>
+      <text class="h" x="34" y="80">Company-year table</text><text class="sub" x="34" y="102">1 row = company × year</text><text class="sub" x="34" y="120">synthetic now, BRSR later</text>
+      <rect class="box" x="235" y="40" width="190" height="110" rx="8"/><text class="num" x="249" y="60">2</text>
+      <text class="h" x="249" y="80">Drop unusable features</text><text class="sub" x="249" y="102">all-empty columns removed</text><text class="sub" x="249" y="120">list stored with the model</text>
+      <rect class="box" x="450" y="40" width="190" height="110" rx="8"/><text class="num" x="464" y="60">3</text>
+      <text class="h" x="464" y="80">Split by company</text><text class="sub" x="464" y="102">train ≈70% · calib ≈15%</text><text class="sub" x="464" y="120">test ≈15%</text><text class="sub" x="464" y="138">no company in two sets</text>
+      <rect class="box ml" x="665" y="40" width="190" height="110" rx="8"/><text class="num" x="679" y="60">4</text>
+      <text class="h" x="679" y="80">Tune 4 models</text><text class="sub" x="679" y="102">Ridge · RF · XGB · LGBM</text><text class="sub" x="679" y="120">grouped 3-fold CV</text><text class="sub" x="679" y="138">20 random draws each</text>
+      <rect class="box ml" x="880" y="40" width="190" height="110" rx="8"/><text class="num" x="894" y="60">5</text>
+      <text class="h" x="894" y="80">Select best model</text><text class="sub" x="894" y="102">lowest CV RMSE</text><text class="sub" x="894" y="120">test set not used to</text><text class="sub" x="894" y="138">choose (no peeking)</text>
+      </g>
+      <line class="ln" x1="210" y1="95" x2="233" y2="95" marker-end="url(#a3)"/>
+      <line class="ln" x1="425" y1="95" x2="448" y2="95" marker-end="url(#a3)"/>
+      <line class="ln" x1="640" y1="95" x2="663" y2="95" marker-end="url(#a3)"/>
+      <line class="ln" x1="855" y1="95" x2="878" y2="95" marker-end="url(#a3)"/>
+      <polyline class="ln" points="975,150 975,190 115,190 115,228" marker-end="url(#a3)"/>
+
+      <g>
+      <rect class="box" x="20" y="230" width="190" height="110" rx="8"/><text class="num" x="34" y="250">6</text>
+      <text class="h" x="34" y="270">Overfit audit</text><text class="sub" x="34" y="292">test ÷ train RMSE</text><text class="sub" x="34" y="310">flag when ratio &gt; 1.5</text><text class="sub" x="34" y="328">RF flagged (synthetic run)</text>
+      <rect class="box ml" x="235" y="230" width="190" height="110" rx="8"/><text class="num" x="249" y="250">7</text>
+      <text class="h" x="249" y="270">Conformal intervals</text><text class="sub" x="249" y="292">Mondrian vs normalised</text><text class="sub" x="249" y="310">picked on held-out half</text><text class="sub" x="249" y="328">of calibration companies</text>
+      <rect class="box" x="450" y="230" width="190" height="110" rx="8" style="stroke:var(--warn)"/><text class="num" x="464" y="250">8</text>
+      <text class="h" x="464" y="270">Score on test set</text><text class="sub" x="464" y="292">vs sector-median baseline</text><text class="sub" x="464" y="310">company bootstrap 95% CI</text><text class="sub" x="464" y="328">+ out-of-time 2024 onward</text>
+      <rect class="box" x="665" y="230" width="190" height="110" rx="8"/><text class="num" x="679" y="250">9</text>
+      <text class="h" x="679" y="270">Save</text><text class="sub" x="679" y="292">models/*.joblib</text><text class="sub" x="679" y="310">results/metrics.json</text><text class="sub" x="679" y="328">SHAP + interval plots</text>
+      </g>
+      <line class="ln" x1="210" y1="285" x2="233" y2="285" marker-end="url(#a3)"/>
+      <line class="ln" x1="425" y1="285" x2="448" y2="285" marker-end="url(#a3)"/>
+      <line class="ln" x1="640" y1="285" x2="663" y2="285" marker-end="url(#a3)"/>
+      <text class="lab" x="880" y="262">amber border: the only step</text>
+      <text class="lab" x="880" y="278">that reads the test set</text>
+    </svg>
+    </div>
+    <figcaption>Model choice (step 5) uses cross-validation inside the training companies only. Interval calibration (step 7) uses a separate calibration group, and the test group is read once, at step 8.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>4 · Datasets by scope</h2>
+  <p>What each scope counts, which data it needs from the user, which reference dataset turns activity into emissions, and what the ML models learn from.</p>
+  <figure>
+    <div class="frame">
+    <div class="matrix" role="table" aria-label="Datasets by scope">
+      <div></div>
+      <div class="cell head s1">Scope 1<small>direct fuel burning</small></div>
+      <div class="cell head s2">Scope 2<small>purchased electricity</small></div>
+      <div class="cell head s3">Scope 3<small>value chain spend</small></div>
+
+      <div class="rowlab">Counts</div>
+      <div class="cell c1">Diesel, petrol, LPG and natural gas burned on site, for example generators and boilers.</div>
+      <div class="cell c2">Electricity drawn from the Indian grid, location-based.</div>
+      <div class="cell c3">14 purchased categories: steel, cement, plastics, packaging, textiles, electronics, office, IT, consulting, freight, courier, waste, air travel, hotels.</div>
+
+      <div class="rowlab">You provide</div>
+      <div class="cell c1">Litres (or kg, m³) per year</div>
+      <div class="cell c2">kWh per year, optional T&amp;D loss gross-up</div>
+      <div class="cell c3">Rupees spent per category per year</div>
+
+      <div class="rowlab">Factor dataset</div>
+      <div class="cell c1"><b>EPA</b> diesel 2.70 kg CO₂/L (10.21 kg per US gallon).<br>Other fuels approximate, to verify against IPCC or DESNZ.<br><span class="chip real">diesel real</span><span class="chip asm">others approximate</span></div>
+      <div class="cell c2"><b>CEA CO₂ Baseline v22</b>, FY2025-26 weighted average 0.675 kg CO₂/kWh.<br><span class="chip real">real</span></div>
+      <div class="cell c3"><b>EPA USEEIO v1.3</b>, 1,016 sectors, kg CO₂e per 2022 USD, with margins. Converted at ₹85 per USD.<br><span class="chip real">real file</span><span class="chip asm">US factors on Indian spend</span></div>
+
+      <div class="rowlab">ML training data</div>
+      <div class="cell span2"><b>Company-year table</b> shared by Scope 1 and 2: sector, activity, log turnover, log employees, year, renewable share, with reported S1 and S2 as targets.<br>Today: <b>7,648 rows · 1,500 companies · 12 sectors · 2020–2025</b>, generated by <code>data_synth.py</code>. Planned: BRSR Principle 6, top 1,000 listed Indian companies, via <code>prepare_brsr.py</code>.<br><span class="chip syn">synthetic today</span><span class="chip asm">BRSR adapter untested</span></div>
+      <div class="cell na">Not ML-estimated. Reported Scope 3 data is too sparse for reliable models, so the spend-based formula is used.</div>
+
+      <div class="rowlab">Uncertainty</div>
+      <div class="cell c1">Factor ±5% (lognormal) in Monte Carlo. ML estimate: 90% conformal interval.</div>
+      <div class="cell c2">Factor ±8% in Monte Carlo. ML estimate: 90% conformal interval.</div>
+      <div class="cell c3">Factor ±50% in Monte Carlo, because US factors stand in for Indian supply chains.</div>
+
+      <div class="rowlab">Feeds lever</div>
+      <div class="cell c1">Polaris dispatch: diesel saving typed in as a percent. 26.8% is illustrative until the Polaris simulation is linked.</div>
+      <div class="cell c2">On-site solar and green PPA, capped at grid kWh drawn.</div>
+      <div class="cell c3">Supplier engagement, as a percent cut of Scope 3.</div>
+    </div>
+    </div>
+    <figcaption>Scope 1 and 2 share one ML table; Scope 3 relies only on the USEEIO reference file. Chips mark what is real data, what is synthetic, and what is an assumption.</figcaption>
+  </figure>
+</section>
+</main>
+</body></html>

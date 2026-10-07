@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.next/
+node_modules/
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+models/*
+!models/.gitkeep
+.env
+__pycache__/

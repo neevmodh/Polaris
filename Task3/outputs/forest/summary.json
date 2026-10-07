@@ -1,0 +1,21 @@
+{
+  "analysis": "Forest-loss screening",
+  "method": "Trained random forest",
+  "region": "Rond\u00f4nia forest frontier",
+  "observed_pair_pct": 99.79,
+  "observed_area_ha": 7868.43,
+  "baseline_vegetation_area_ha": 1138.41,
+  "baseline_support": "Hansen canopy2000 >=30%, no loss through baseline year, plus vegetation threshold; regrowth excluded",
+  "candidate_loss_area_ha": 245.43,
+  "baseline_candidate_loss_area_ha": 179.82,
+  "alert_regions": 84,
+  "analysis_resolution_m": 30.0,
+  "mean_ndvi_change": -0.20517465472221375,
+  "parameters": {
+    "ndvi_drop": 0.2,
+    "baseline_vegetation_ndvi": 0.6,
+    "minimum_patch_pixels": 4,
+    "rf_score_threshold": 0.5
+  },
+  "interpretation": "Candidate tree-cover loss, not verified deforestation. Seasonal change, fire, drought, harvest and reference-label errors can affect results. Baseline high NDVI does not prove forest. Scores are uncalibrated. Validate alerts with reference maps and independent review."
+}

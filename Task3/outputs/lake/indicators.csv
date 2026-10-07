@@ -1,0 +1,4 @@
+indicator,meaning,before_median,after_median,change,units
+NDCI,Red-edge algae proxy,0.030914952978491783,0.13365651667118073,0.10274156369268894,unitless spectral proxy
+NDTI,Normalized turbidity proxy,-0.12623435258865356,-0.21906282007694244,-0.09282846748828888,unitless spectral proxy
+visible_turbidity_ratio,Visible-band turbidity ratio,2.147550582885742,1.9147124290466309,-0.23283815383911133,unitless spectral proxy

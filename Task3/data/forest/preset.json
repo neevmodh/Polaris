@@ -1,0 +1,18 @@
+{
+  "name": "Rond\u00f4nia forest frontier",
+  "location": "Brazil \u00b7 Amazon basin",
+  "bbox": [
+    -64.6,
+    -9.7,
+    -64.52,
+    -9.62
+  ],
+  "before": [
+    "2019-07-01",
+    "2019-09-30"
+  ],
+  "after": [
+    "2024-07-01",
+    "2024-09-30"
+  ]
+}

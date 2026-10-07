@@ -1,0 +1,78 @@
+{
+  "model": "Random forest \u00b7 160 trees \u00b7 seed 42",
+  "features": [
+    "NDVI_before",
+    "NDVI_after",
+    "NDVI_delta",
+    "NBR_before",
+    "NBR_after",
+    "NBR_delta",
+    "NDMI_before",
+    "NDMI_after",
+    "NDMI_delta",
+    "MNDWI_before",
+    "MNDWI_after",
+    "MNDWI_delta",
+    "red_delta",
+    "nir_delta",
+    "swir16_delta",
+    "swir22_delta"
+  ],
+  "trained_samples": 9449,
+  "holdout_samples": 3199,
+  "holdout_positive_samples": 731,
+  "training_positive_samples": 2039,
+  "spatial_split": "West 70% train; east 30% holdout; 6-column gap",
+  "holdout_bounds": "Eastern strip of the same scene pair; not external geographic or temporal validation",
+  "reference": "Hansen GFC 2024 v1.12; canopy2000 >=30%; endpoint loss years excluded",
+  "label_interval": "2020\u20132023",
+  "rf": {
+    "precision": 0.7721518987341772,
+    "recall": 0.8344733242134063,
+    "f1": 0.8021038790269559,
+    "iou": 0.6695938529088913,
+    "average_precision": 0.8834133551466534,
+    "confusion_matrix": {
+      "tn": 2288,
+      "fp": 180,
+      "fn": 121,
+      "tp": 610
+    }
+  },
+  "ndvi_baseline": {
+    "precision": 0.7818181818181819,
+    "recall": 0.7058823529411765,
+    "f1": 0.7419122933141624,
+    "iou": 0.5897142857142857,
+    "average_precision": 0.619080160411091,
+    "confusion_matrix": {
+      "tn": 2324,
+      "fp": 144,
+      "fn": 215,
+      "tp": 516
+    }
+  },
+  "feature_importance": {
+    "NDVI_before": 0.037441598586483056,
+    "NDVI_after": 0.02058367859596647,
+    "NDVI_delta": 0.06048418043545186,
+    "NBR_before": 0.029012271073709413,
+    "NBR_after": 0.04139914213147068,
+    "NBR_delta": 0.10829659404981136,
+    "NDMI_before": 0.02804960224857746,
+    "NDMI_after": 0.02560104739750127,
+    "NDMI_delta": 0.13604201448457437,
+    "MNDWI_before": 0.01615504032031409,
+    "MNDWI_after": 0.0160661581375684,
+    "MNDWI_delta": 0.014537154271499337,
+    "red_delta": 0.09436434196080903,
+    "nir_delta": 0.017403403763000536,
+    "swir16_delta": 0.18112527614155466,
+    "swir22_delta": 0.17343849640170794
+  },
+  "probability_note": "Model scores are not calibrated probabilities or confidence intervals.",
+  "scene_ids": [
+    "S2A_T20LLQ_20190708T143751_L2A",
+    "S2A_T20LLQ_20240721T144218_L2A"
+  ]
+}

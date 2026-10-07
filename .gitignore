@@ -1,0 +1,22 @@
+.DS_Store
+__pycache__/
+.pytest_cache/
+.venv/
+node_modules/
+.next/
+.e2e-shots/
+*.tsbuildinfo
+Polaris/data/
+.env
+
+# Vendored third-party reference checkouts: each carries its own .git, and the
+# READMEs link to the originals instead.
+references/
+
+# Trained models: the small ones ship so a clone runs straight away. Excluded are
+# water_unet.pth (118 MB, past GitHub's hard limit) and the regenerable caches.
+# See each project's README for how to rebuild them.
+*.pth
+*.pkl
+task1/outputs/**/*.joblib
+SCOPE/models/dispatch/*.joblib

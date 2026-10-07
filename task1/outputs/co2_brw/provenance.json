@@ -1,0 +1,22 @@
+{
+  "site": "Barrow Atmospheric Baseline Observatory",
+  "gas": "co2",
+  "unit": "ppm",
+  "source": "https://gml.noaa.gov/aftp/data/trace_gases/co2/in-situ/surface/txt/co2_brw_surface-insitu_1_ccgg_DailyData.txt",
+  "sha256": "0093bac2fcf7193e6db489476e9b760baee550878a241a62367f9604c0e157d6",
+  "retrieved_at": "2026-10-07T17:10:07.554017+00:00",
+  "selected_model": "Lag Ridge",
+  "validation_winner": "Lag Ridge",
+  "split": {
+    "train_start": "2018-01-02",
+    "train_end_exclusive": "2023-10-06",
+    "test_start": "2024-11-18",
+    "last_observation": "2025-12-31",
+    "training_rows": 11720,
+    "calibration_rows": 2231,
+    "test_rows": 2225
+  },
+  "interval": "Nominal 90% absolute-error bands calibrated before test; temporal coverage is not guaranteed.",
+  "scope": "Daily dry-air concentration at one station; not emissions, street-level exposure or a spatial interpolation.",
+  "citation": "G. P\u00e9tron, P. Handley, J. Hakala, J. Kofler, K. W. Thoning, A. Crotwell, A. Clarke, J. Fernandez, I. Crocker, R. Burgener, B. Thomas, A. Colton, S. Jordan, L. Longren, M. Doneghey, M. Trudeau, T. Mefford, S. DeVogel, A. Searle, X. Lan, J. Mauss, C. Smith, B. Vasel, S. Morris, J. Miller and J. Mund (2026), Atmospheric Carbon Dioxide Dry Air Mole Fractions from continuous measurements at Mauna Loa, Hawaii, Utqia\u0121vik, Alaska, American Samoa and South Pole, 1973-present. Version 2026-08-11, National Oceanic and Atmospheric Administration (NOAA), Global Monitoring Laboratory (GML), Boulder, Colorado, USA https://doi.org/10.15138/yaf1-bk21"
+}

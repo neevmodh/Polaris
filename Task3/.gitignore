@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.DS_Store
+data/custom/
+outputs/custom/
+data/reviews/
+data/timeline/
+*.log

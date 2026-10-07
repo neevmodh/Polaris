@@ -1,0 +1,11 @@
+{
+  "dataset": "Hansen Global Forest Change 2024 v1.12",
+  "source": {
+    "treecover2000": "https://storage.googleapis.com/earthenginepartners-hansen/GFC-2024-v1.12/Hansen_GFC-2024-v1.12_treecover2000_00N_070W.tif",
+    "lossyear": "https://storage.googleapis.com/earthenginepartners-hansen/GFC-2024-v1.12/Hansen_GFC-2024-v1.12_lossyear_00N_070W.tif",
+    "datamask": "https://storage.googleapis.com/earthenginepartners-hansen/GFC-2024-v1.12/Hansen_GFC-2024-v1.12_datamask_00N_070W.tif"
+  },
+  "license": "CC BY 4.0",
+  "reference_resolution_m": 30,
+  "meaning": "Annual tree-cover loss, not a legal determination of deforestation."
+}

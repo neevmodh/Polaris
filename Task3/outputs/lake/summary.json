@@ -1,0 +1,42 @@
+{
+  "analysis": "Lake water-quality screening",
+  "method": "Pretrained U-Net water segmentation + SCL quality mask",
+  "region": "Loktak Lake",
+  "before_open_water_ha": 1008.63,
+  "after_open_water_ha": 942.66,
+  "common_water_ha": 703.17,
+  "algae_proxy_increase_ha": 319.41,
+  "observed_pair_pct": 93.0,
+  "parameters": {
+    "mndwi": 0.0,
+    "algae_proxy_increase": 0.1
+  },
+  "indicators": [
+    {
+      "indicator": "NDCI",
+      "meaning": "Red-edge algae proxy",
+      "before_median": 0.030914952978491783,
+      "after_median": 0.13365651667118073,
+      "change": 0.10274156369268894,
+      "units": "unitless spectral proxy"
+    },
+    {
+      "indicator": "NDTI",
+      "meaning": "Normalized turbidity proxy",
+      "before_median": -0.12623435258865356,
+      "after_median": -0.21906282007694244,
+      "change": -0.09282846748828888,
+      "units": "unitless spectral proxy"
+    },
+    {
+      "indicator": "visible_turbidity_ratio",
+      "meaning": "Visible-band turbidity ratio",
+      "before_median": 2.147550582885742,
+      "after_median": 1.9147124290466309,
+      "change": -0.23283815383911133,
+      "units": "unitless spectral proxy"
+    }
+  ],
+  "interpretation": "Unitless indicators of optical change in clear open water; not measured chlorophyll, turbidity in NTU, pathogens, sewage, heavy metals or drinking-water safety. Field sampling and local calibration are required. Atmospheric correction, sun glint, shallow bottoms and floating vegetation can affect results. Shoreline pixels are eroded.",
+  "comparison_support": "Same clear, open-water pixels at both dates; water areas include only observed eroded mask."
+}

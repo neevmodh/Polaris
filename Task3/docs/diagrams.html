@@ -1,0 +1,381 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><title>Satellite Monitor Diagrams</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one long engineering sheet, four figures, each wide figure scrolls inside its own frame.
+   Palette: cool paper + ink, one hue per emission scope (orange fuel, blue grid, green supply chain), violet for ML. */
+:root{
+  --bg:#f2f5f8; --card:#ffffff; --ink:#13202b; --muted:#566676; --line:#b9c5d0; --soft:#e6ecf1;
+  --s1:#c2410c; --s2:#1d5fd1; --s3:#0b7a5a; --ml:#6b3fa0; --warn:#a16207;
+  --font:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e151c; --card:#16212b; --ink:#e6edf3; --muted:#93a3b1; --line:#334555; --soft:#1d2a36;
+  --s1:#f0884d; --s2:#6aa2ff; --s3:#3fc79b; --ml:#b896f0; --warn:#e3b341; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e151c; --card:#16212b; --ink:#e6edf3; --muted:#93a3b1; --line:#334555; --soft:#1d2a36;
+  --s1:#f0884d; --s2:#6aa2ff; --s3:#3fc79b; --ml:#b896f0; --warn:#e3b341; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.5;padding-inline:16px;padding-block:28px 56px}
+main{max-width:1120px;margin-inline:auto;display:flex;flex-direction:column;gap:44px}
+header h1{font-size:1.9rem;line-height:1.15;font-weight:600;margin:0 0 6px;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:0;color:var(--muted);max-width:68ch}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.sw{width:14px;height:14px;border-radius:3px;border:2px solid var(--line);background:var(--card)}
+.sw.s1{border-color:var(--s1)}.sw.s2{border-color:var(--s2)}.sw.s3{border-color:var(--s3)}.sw.ml{border-color:var(--ml)}
+.sw.dash{border-style:dashed}
+section h2{font-size:1.15rem;font-weight:600;margin:0 0 4px}
+section>p{margin:0 0 12px;color:var(--muted);max-width:72ch;font-size:14px}
+figure{margin:0}
+.frame{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
+.frame svg{display:block;min-width:760px;width:100%;height:auto}
+figcaption{margin-top:8px;font-size:13px;color:var(--muted);max-width:80ch}
+svg{color:var(--ink);font-family:var(--font)}
+svg text{fill:var(--ink)}
+svg .h{font-size:13.5px;font-weight:600}
+svg .t{font-size:12px}
+svg .sub{font-size:11.5px;fill:var(--muted)}
+svg .m{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+svg .lab{font-size:11px;fill:var(--muted);font-style:italic}
+svg .num{font-size:11px;font-weight:600;fill:var(--muted)}
+svg .box{fill:var(--card);stroke:var(--line);stroke-width:1.5}
+svg .box.s1{stroke:var(--s1)}svg .box.s2{stroke:var(--s2)}svg .box.s3{stroke:var(--s3)}svg .box.ml{stroke:var(--ml)}
+svg .box.ref{stroke-dasharray:6 4}
+svg .band{fill:var(--soft);stroke:var(--line);stroke-width:1}
+svg .ln{stroke:currentColor;stroke-width:1.5;fill:none}
+svg .ln.ml{stroke:var(--ml)}
+svg .tag{font-size:10.5px;font-weight:600;letter-spacing:.06em;fill:var(--muted)}
+/* dataset matrix */
+.matrix{min-width:780px;display:grid;grid-template-columns:130px repeat(3,minmax(0,1fr));gap:8px}
+.cell{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.45;min-width:0}
+.rowlab{font-size:11.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:10px 4px;display:flex;align-items:flex-start}
+.head{border-top-width:4px;font-weight:600;font-size:15px}
+.head small{display:block;font-weight:400;color:var(--muted);font-size:12.5px;margin-top:2px}
+.head.s1{border-top-color:var(--s1)}.head.s2{border-top-color:var(--s2)}.head.s3{border-top-color:var(--s3)}
+.c1{border-left:3px solid var(--s1)}.c2{border-left:3px solid var(--s2)}.c3{border-left:3px solid var(--s3)}
+.span2{grid-column:span 2;border-left:3px solid var(--ml)}
+.na{background:repeating-linear-gradient(135deg,var(--soft) 0 8px,var(--card) 8px 16px);color:var(--muted);border-left:3px solid var(--s3)}
+.cell b{font-weight:600}.cell code{font-family:var(--mono);font-size:12px}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:99px;border:1px solid var(--line);margin-right:4px;margin-top:3px}
+.chip.real{border-color:var(--s3);color:var(--s3)}.chip.syn{border-color:var(--warn);color:var(--warn);border-style:dashed}.chip.asm{border-color:var(--muted);color:var(--muted)}
+</style>
+<style>
+/* Task 3 additions: domain hues on top of the shared token set (forest = green, lake = blue, data = orange, ML = violet). */
+.hero-line{display:flex;flex-wrap:wrap;gap:10px 28px;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.hero-line div{min-width:130px}.hero-line b{display:block;font-size:1.35rem;font-weight:600;font-variant-numeric:tabular-nums}.hero-line span{font-size:12.5px;color:var(--muted)}
+.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+@media (max-width:900px){.pair{grid-template-columns:minmax(0,1fr)}}
+.pair .frame svg{min-width:560px}
+svg .f{fill:var(--s3)}svg .l{fill:var(--s2)}
+svg .box.forest{stroke:var(--s3)}svg .box.lake{stroke:var(--s2)}svg .box.data{stroke:var(--s1)}
+svg .hatch{fill:url(#hatch)}
+.tbl{min-width:900px;display:grid;grid-template-columns:150px minmax(0,1.1fr) minmax(0,1.2fr) minmax(0,.9fr) minmax(0,1.3fr);gap:8px}
+.tbl .cell b{font-weight:600}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.two{grid-template-columns:minmax(0,1fr)}}
+.ledger{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.ledger li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;font-size:13.5px;line-height:1.45}
+.ledger .mk{font:700 12px var(--mono);text-align:center;border:1px solid;height:20px;line-height:18px}
+.yes .mk{color:var(--s3);border-color:var(--s3)}.no .mk{color:var(--s1);border-color:var(--s1)}
+</style>
+
+<main>
+<header>
+  <h1>Satellite Monitor Diagrams</h1>
+  <p>Polaris · Task 3. How the forest-loss and lake-screening app is built, how a request moves through it, how each analysis works, how the forest model was trained and tested, and where every dataset comes from.</p>
+  <div class="legend">
+    <span><i class="sw s3"></i>Forest</span><span><i class="sw s2"></i>Lake</span><span><i class="sw s1"></i>External data</span>
+    <span><i class="sw ml"></i>Trained or pretrained model</span><span><i class="sw dash"></i>Outside this project</span>
+  </div>
+  <div class="hero-line" aria-label="Key numbers from the project's own validation file">
+    <div><b>F1 0.802</b><span>random forest on held-out strip, vs 0.742 NDVI baseline</span></div>
+    <div><b>245.43 ha</b><span>candidate forest loss, Rondônia 2019→2024</span></div>
+    <div><b>686.70 ha</b><span>comparable open water, Loktak Lake</span></div>
+    <div><b>14 tests</b><span>passing, per VALIDATION.md</span></div>
+  </div>
+</header>
+
+<section>
+  <h2>1 · System architecture</h2>
+  <p>Imagery and labels arrive over public HTTPS, are aligned to one 30 m grid, cached locally, analysed, and shown in a Streamlit app that can export everything.</p>
+  <figure>
+    <div class="frame">
+    <svg viewBox="0 0 1200 620" role="img" aria-label="Architecture: external sources feed ingestion code, which writes a local cache; analysis code reads the cache and saved models; the Streamlit app shows results and exports a package. Offline scripts prepare the cache and models.">
+      <defs><marker id="b1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+      <text class="tag" x="20" y="32">EXTERNAL</text><text class="tag" x="275" y="32">INGEST · monitor/</text><text class="tag" x="550" y="32">LOCAL STORE</text><text class="tag" x="785" y="32">ANALYSIS · monitor/</text><text class="tag" x="1020" y="32">INTERFACE</text>
+
+      <rect class="box ref data" x="20" y="50" width="210" height="86" rx="8"/><text class="h" x="34" y="75">Earth Search STAC</text><text class="sub" x="34" y="95">Sentinel-2 C1 L2A scenes</text><text class="sub" x="34" y="113">public HTTPS, no API key</text>
+      <rect class="box ref data" x="20" y="150" width="210" height="86" rx="8"/><text class="h" x="34" y="175">Hansen GFC 2024 v1.12</text><text class="sub" x="34" y="195">treecover2000 · lossyear</text><text class="sub" x="34" y="213">datamask · CC BY 4.0</text>
+      <rect class="box ref" x="20" y="250" width="210" height="86" rx="8"/><text class="h" x="34" y="275">Your GeoTIFFs</text><text class="sub" x="34" y="295">8 bands incl. SCL, metres</text><text class="sub" x="34" y="313">upload mode only</text>
+      <rect class="box ref ml" x="20" y="350" width="210" height="86" rx="8"/><text class="h" x="34" y="375">U-Net checkpoint</text><text class="sub" x="34" y="395">Apache-2.0 · 124 MB</text><text class="sub" x="34" y="413">SHA-256 verified</text>
+
+      <rect class="box" x="275" y="50" width="230" height="150" rx="8"/><text class="h" x="290" y="75">catalog.py</text>
+      <text class="t" x="290" y="98">search: cloud &lt; 15%, covers box</text><text class="t" x="290" y="118">fetch_scene: scale and offset</text><text class="t" x="290" y="138">hansen_reference: 3 layers</text><text class="sub" x="290" y="170">windowed COG reads, no key</text>
+      <rect class="box" x="275" y="225" width="230" height="185" rx="8"/><text class="h" x="290" y="250">scenes.py</text>
+      <text class="t" x="290" y="273">utm_grid: 30 m, ≤ 1M pixels</text><text class="t" x="290" y="293">reproject onto that grid</text><text class="t" x="290" y="313">Scene: 7 bands + SCL</text><text class="t" x="290" y="333">valid = SCL 4, 5 or 6</text><text class="t" x="290" y="353">from_geotiff: upload checks</text><text class="sub" x="290" y="385">rejects non-metre CRS, bad scaling</text>
+
+      <rect class="box" x="550" y="50" width="190" height="130" rx="8"/><text class="h" x="565" y="75">data/</text><text class="m" x="565" y="97">forest/  lake/  custom/&lt;hash&gt;</text><text class="t" x="565" y="120">before.npz · after.npz</text><text class="t" x="565" y="140">reference.npz (Hansen)</text><text class="sub" x="565" y="165">works offline once cached</text>
+      <rect class="box ml" x="550" y="205" width="190" height="130" rx="8"/><text class="h" x="565" y="230">models/</text><text class="t" x="565" y="253">forest_rf.joblib</text><text class="t" x="565" y="273">metrics.json</text><text class="t" x="565" y="293">sample_inference.npz</text><text class="t" x="565" y="313">water_unet.pth</text>
+
+      <rect class="box" x="785" y="50" width="190" height="330" rx="8"/>
+      <line class="ln" x1="785" x2="975" y1="130" y2="130" opacity=".35"/><line class="ln" x1="785" x2="975" y1="210" y2="210" opacity=".35"/><line class="ln" x1="785" x2="975" y1="290" y2="290" opacity=".35"/>
+      <text class="h" x="800" y="75">indices.py</text><text class="sub" x="800" y="95">NDVI NBR NDMI MNDWI</text><text class="sub" x="800" y="112">NDCI NDTI turbidity ratio</text>
+      <text class="h" x="800" y="155">learning.py</text><text class="sub" x="800" y="175">16 features, Hansen labels</text><text class="sub" x="800" y="192">random-forest train and predict</text>
+      <text class="h" x="800" y="235">water_model.py</text><text class="sub" x="800" y="255">U-Net on 128 px tiles</text><text class="sub" x="800" y="272">overlap-averaged, CPU</text>
+      <text class="h" x="800" y="315">analysis.py</text><text class="sub" x="800" y="335">forest_analysis</text><text class="sub" x="800" y="352">lake_analysis, alert table</text>
+
+      <rect class="box" x="1020" y="50" width="160" height="200" rx="8"/><text class="h" x="1034" y="75">app.py</text><text class="sub" x="1034" y="94">Streamlit · port 8503</text><text class="t" x="1034" y="122">sidebar controls</text><text class="t" x="1034" y="142">4 metric tiles</text><text class="t" x="1034" y="162">3 tabs: workspace,</text><text class="t" x="1034" y="180">evidence, sources</text><text class="t" x="1034" y="200">side-by-side maps</text>
+      <rect class="box" x="1020" y="275" width="160" height="105" rx="8"/><text class="h" x="1034" y="300">exports.py</text><text class="t" x="1034" y="322">ZIP package:</text><text class="sub" x="1034" y="340">JSON · report · PNG</text><text class="sub" x="1034" y="357">GeoTIFF · GeoJSON · CSV</text>
+
+      <line class="ln" x1="230" y1="93" x2="275" y2="93" marker-end="url(#b1)"/><text class="lab" x="236" y="85">scenes</text>
+      <line class="ln" x1="230" y1="193" x2="275" y2="193" marker-end="url(#b1)"/><text class="lab" x="236" y="185">labels</text>
+      <line class="ln" x1="230" y1="293" x2="275" y2="293" marker-end="url(#b1)"/>
+      <polyline class="ln" points="125,436 125,452 645,452 645,337" marker-end="url(#b1)"/><text class="lab" x="300" y="446">weights, after setup_water_model.py</text>
+      <line class="ln" x1="505" y1="105" x2="550" y2="105" marker-end="url(#b1)"/>
+      <polyline class="ln" points="505,330 528,330 528,150 550,150" marker-end="url(#b1)"/><text class="lab" x="509" y="347">cache</text>
+      <line class="ln" x1="740" y1="115" x2="785" y2="115" marker-end="url(#b1)"/>
+      <line class="ln" x1="740" y1="270" x2="785" y2="270" marker-end="url(#b1)"/>
+      <line class="ln" x1="975" y1="150" x2="1020" y2="150" marker-end="url(#b1)"/>
+      <line class="ln" x1="975" y1="330" x2="1020" y2="330" marker-end="url(#b1)"/>
+      <line class="ln" x1="1100" y1="250" x2="1100" y2="275" marker-end="url(#b1)"/>
+
+      <rect class="band" x="20" y="480" width="1160" height="120" rx="8"/><text class="tag" x="36" y="502">OFFLINE PREPARATION · scripts/</text>
+      <text class="h" x="36" y="530">bootstrap_data.py</text><text class="sub" x="36" y="550">fetch and cache both case studies</text><text class="sub" x="36" y="567">plus Hansen labels</text>
+      <text class="h" x="336" y="530">train_forest.py</text><text class="sub" x="336" y="550">train random forest on the forest pair</text><text class="sub" x="336" y="567">write models/metrics.json</text>
+      <text class="h" x="676" y="530">setup_water_model.py</text><text class="sub" x="676" y="550">download U-Net weights, check size</text><text class="sub" x="676" y="567">and SHA-256 against the LFS pointer</text>
+      <text class="h" x="976" y="530">build_reports.py</text><text class="sub" x="976" y="550">outputs/: GeoTIFFs, ZIPs, CSV</text><text class="sub" x="976" y="567">and sample inference</text>
+      <line class="ln" x1="700" y1="480" x2="700" y2="337" marker-end="url(#b1)"/>
+    </svg>
+    </div>
+    <figcaption>Dashed boxes are outside this project. Everything the demo needs is cached in <span class="mono">data/</span> and <span class="mono">models/</span>, so the jury run needs no network. Fetch mode and the first-time setup are the only steps that go online.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>2 · User flow</h2>
+  <p>What happens between opening the app and downloading a package, including every check that can stop an analysis.</p>
+  <figure>
+    <div class="frame">
+    <svg viewBox="0 0 1000 950" role="img" aria-label="Flowchart: pick forest or lake, pick an imagery source (cached, fetch, or upload), pass the alignment check, set the detector controls, then read the results and download a package.">
+      <defs><marker id="b2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+      <rect class="box" x="330" y="14" width="340" height="42" rx="21"/><text class="h" x="500" y="40" text-anchor="middle">bash run.sh → http://localhost:8503</text>
+      <line class="ln" x1="500" y1="56" x2="500" y2="84" marker-end="url(#b2)"/>
+      <rect class="box" x="300" y="86" width="400" height="46" rx="8"/><text class="h" x="500" y="114" text-anchor="middle">Observe: Forest loss or Lake water quality</text>
+      <line class="ln" x1="500" y1="132" x2="500" y2="154" marker-end="url(#b2)"/>
+      <polygon class="box" points="500,156 640,203 500,250 360,203"/><text class="t" x="500" y="200" text-anchor="middle">Imagery</text><text class="t" x="500" y="217" text-anchor="middle">source?</text>
+      <polyline class="ln" points="360,203 170,203 170,288" marker-end="url(#b2)"/><text class="lab" x="260" y="195">cached</text>
+      <line class="ln" x1="500" y1="250" x2="500" y2="288" marker-end="url(#b2)"/><text class="lab" x="510" y="272">fetch</text>
+      <polyline class="ln" points="640,203 830,203 830,288" marker-end="url(#b2)"/><text class="lab" x="700" y="195">upload</text>
+
+      <rect class="box data" x="40" y="290" width="260" height="150" rx="8"/><text class="h" x="56" y="316">Cached real case study</text><text class="t" x="56" y="340">data/forest or data/lake</text><text class="t" x="56" y="360">no network needed</text><text class="sub" x="56" y="388">Rondônia: Jul 2019 → Jul 2024</text><text class="sub" x="56" y="406">Loktak Lake: early 2020 → early 2024</text>
+      <rect class="box data" x="370" y="290" width="260" height="150" rx="8"/><text class="h" x="386" y="316">Fetch a custom region</text><text class="t" x="386" y="338">box sides &lt; 0.3°, ≤ 1M pixels</text><text class="t" x="386" y="358">STAC: cloud &lt; 15%, covers the box</text><text class="t" x="386" y="378">best 3 tried, first with ≥ 70% clear</text><text class="sub" x="386" y="406">else: error · cached by request hash</text>
+      <rect class="box data" x="700" y="290" width="260" height="150" rx="8"/><text class="h" x="716" y="316">Upload aligned GeoTIFFs</text><text class="t" x="716" y="338">8 bands: B02 B03 B04 B08</text><text class="t" x="716" y="358">B11 B12 B05 SCL</text><text class="t" x="716" y="378">projected CRS in metres</text><text class="sub" x="716" y="406">99th percentile of reflectance ≤ 1.5</text>
+
+      <polyline class="ln" points="170,440 170,468 500,468 500,496" marker-end="url(#b2)"/>
+      <line class="ln" x1="500" y1="440" x2="500" y2="496" marker-end="url(#b2)"/>
+      <polyline class="ln" points="830,440 830,468 500,468" />
+      <rect class="box" x="320" y="498" width="360" height="64" rx="8"/><text class="h" x="500" y="522" text-anchor="middle">Alignment check</text><text class="sub" x="500" y="541" text-anchor="middle">same CRS, grid and extent; comparison later than baseline</text><text class="sub" x="500" y="555" text-anchor="middle">otherwise an error is shown and nothing is analysed</text>
+      <line class="ln" x1="500" y1="562" x2="500" y2="590" marker-end="url(#b2)"/>
+      <polygon class="box" points="500,592 620,632 500,672 380,632"/><text class="t" x="500" y="636" text-anchor="middle">Task?</text>
+      <polyline class="ln" points="380,632 220,632 220,712" marker-end="url(#b2)"/><text class="lab" x="280" y="624">forest</text>
+      <polyline class="ln" points="620,632 780,632 780,712" marker-end="url(#b2)"/><text class="lab" x="690" y="624">lake</text>
+
+      <rect class="box forest" x="40" y="714" width="360" height="130" rx="8"/><text class="h" x="56" y="740">Forest controls</text><text class="t" x="56" y="762">detector: random forest or NDVI baseline</text><text class="t" x="56" y="782">ML score threshold (0.5)</text><text class="t" x="56" y="802">NDVI drop (0.2) · baseline vegetation (0.6)</text><text class="t" x="56" y="822">minimum patch (4 pixels)</text>
+      <rect class="box lake" x="600" y="714" width="360" height="130" rx="8"/><text class="h" x="616" y="740">Lake controls</text><text class="t" x="616" y="762">water mask: spectral (default) or U-Net</text><text class="t" x="616" y="782">open-water MNDWI threshold (0.0)</text><text class="t" x="616" y="802">algae-proxy increase threshold (0.1)</text>
+      <polyline class="ln" points="220,844 220,866 500,866 500,884" marker-end="url(#b2)"/>
+      <polyline class="ln" points="780,844 780,866 500,866" />
+      <rect class="box" x="290" y="886" width="420" height="52" rx="8"/><text class="h" x="500" y="909" text-anchor="middle">4 metric tiles → 3 tabs → download ZIP or JSON</text><text class="sub" x="500" y="927" text-anchor="middle">areas count clear pixels only; dark pixels are excluded</text>
+    </svg>
+    </div>
+    <figcaption>Fetch mode is the only branch that needs the internet during a run. Uploads are validated before use, so a wrongly scaled or non-metric raster is refused instead of producing wrong hectares.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>3 · The two analyses</h2>
+  <p>Both compare the same pixels on two dates, and both start by throwing away cloud, shadow, snow and uncertain pixels.</p>
+  <div class="pair">
+    <figure>
+      <div class="frame">
+      <svg viewBox="0 0 760 790" role="img" aria-label="Forest-loss pipeline: two scenes, valid pixels, indices, eligible forest, then random forest or NDVI baseline, patch filter, candidate loss mask and review table.">
+        <defs><marker id="b3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+        <text class="tag" x="380" y="14" text-anchor="middle">FOREST-LOSS SCREENING</text>
+        <rect class="box" x="60" y="26" width="290" height="58" rx="8"/><text class="h" x="75" y="50">Baseline scene</text><text class="sub" x="75" y="70">Sentinel-2 · 8 Jul 2019</text>
+        <rect class="box" x="410" y="26" width="290" height="58" rx="8"/><text class="h" x="425" y="50">Comparison scene</text><text class="sub" x="425" y="70">Sentinel-2 · 21 Jul 2024</text>
+        <polyline class="ln" points="205,84 205,104 380,104 380,120" marker-end="url(#b3)"/><polyline class="ln" points="555,84 555,104 380,104"/>
+        <rect class="box" x="130" y="122" width="500" height="58" rx="8"/><text class="h" x="145" y="146">Valid pixels, both dates</text><text class="sub" x="145" y="166">SCL class 4, 5 or 6 and finite bands; cloud, shadow, snow, class 7 dropped</text>
+        <line class="ln" x1="380" y1="180" x2="380" y2="200" marker-end="url(#b3)"/>
+        <rect class="box" x="130" y="202" width="500" height="58" rx="8"/><text class="h" x="145" y="226">Indices per date</text><text class="sub" x="145" y="246">NDVI = (NIR−red)/(NIR+red) · NBR · NDMI · MNDWI</text>
+        <line class="ln" x1="380" y1="260" x2="380" y2="280" marker-end="url(#b3)"/>
+        <rect class="box forest" x="130" y="282" width="500" height="92" rx="8"/><text class="h" x="145" y="306">Eligible forest pixels</text><text class="t" x="145" y="327">baseline NDVI ≥ 0.6</text><text class="t" x="145" y="347">cached case: also Hansen canopy2000 ≥ 30%</text><text class="t" x="145" y="365">and no loss through the baseline year</text>
+        <polyline class="ln" points="260,374 260,404" marker-end="url(#b3)"/><polyline class="ln" points="500,374 500,404" marker-end="url(#b3)"/>
+        <rect class="box forest" x="60" y="406" width="270" height="108" rx="8"/><text class="h" x="75" y="430">A · NDVI baseline</text><text class="t" x="75" y="452">NDVI fell by more than 0.2</text><text class="sub" x="75" y="476">transparent rule, no training</text><text class="sub" x="75" y="494">default when no model file exists</text>
+        <rect class="box ml" x="430" y="406" width="270" height="108" rx="8"/><text class="h" x="445" y="430">B · Random forest</text><text class="t" x="445" y="452">16 paired features → score</text><text class="t" x="445" y="472">keep score ≥ 0.5 on eligible</text><text class="sub" x="445" y="496">scores are not probabilities</text>
+        <polyline class="ln" points="195,514 195,540 380,540 380,556" marker-end="url(#b3)"/><polyline class="ln" points="565,514 565,540 380,540"/>
+        <rect class="box" x="130" y="558" width="500" height="52" rx="8"/><text class="h" x="145" y="582">Remove small patches</text><text class="sub" x="145" y="600">connected groups under 4 pixels are dropped (slider 1–30)</text>
+        <line class="ln" x1="380" y1="610" x2="380" y2="634" marker-end="url(#b3)"/>
+        <rect class="box" x="130" y="636" width="500" height="64" rx="8"/><text class="h" x="145" y="660">Candidate loss mask → review table</text><text class="sub" x="145" y="680">per region: area in ha, centroid, status “Review required”</text>
+        <line class="ln" x1="380" y1="700" x2="380" y2="722" marker-end="url(#b3)"/>
+        <rect class="box" x="130" y="724" width="500" height="50" rx="8"/><text class="h" x="145" y="746">Result: 245.43 ha in 84 regions</text><text class="sub" x="145" y="764">of 1,138.41 ha eligible support · 99.79% clear pairs</text>
+      </svg>
+      </div>
+      <figcaption>Baseline and forest model share the same eligibility and patch filter, so differences come from the detector alone. “Candidate loss” is not verified deforestation.</figcaption>
+    </figure>
+    <figure>
+      <div class="frame">
+      <svg viewBox="0 0 760 790" role="img" aria-label="Lake pipeline: two scenes, valid pixels, water mask by spectral rule or U-Net, shoreline erosion, common water, three proxy indicators and an algae-proxy increase mask.">
+        <defs><marker id="b4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+        <text class="tag" x="380" y="14" text-anchor="middle">LAKE WATER-QUALITY SCREENING</text>
+        <rect class="box" x="60" y="26" width="290" height="58" rx="8"/><text class="h" x="75" y="50">Baseline scene</text><text class="sub" x="75" y="70">Sentinel-2 · early 2020</text>
+        <rect class="box" x="410" y="26" width="290" height="58" rx="8"/><text class="h" x="425" y="50">Comparison scene</text><text class="sub" x="425" y="70">Sentinel-2 · early 2024</text>
+        <polyline class="ln" points="205,84 205,104 380,104 380,120" marker-end="url(#b4)"/><polyline class="ln" points="555,84 555,104 380,104"/>
+        <rect class="box" x="130" y="122" width="500" height="58" rx="8"/><text class="h" x="145" y="146">Valid pixels, per date</text><text class="sub" x="145" y="166">SCL class 4, 5 or 6 and finite bands (clear observations only)</text>
+        <polyline class="ln" points="260,180 260,212" marker-end="url(#b4)"/><polyline class="ln" points="500,180 500,212" marker-end="url(#b4)"/>
+        <rect class="box lake" x="60" y="214" width="270" height="124" rx="8"/><text class="h" x="75" y="238">A · Spectral open-water mask</text><text class="t" x="75" y="260">SCL says water, or</text><text class="t" x="75" y="280">MNDWI &gt; 0 and NDVI &lt; 0.2</text><text class="sub" x="75" y="304">floating plant mats are not counted</text><text class="sub" x="75" y="322">default for lake screening</text>
+        <rect class="box ml" x="430" y="214" width="270" height="124" rx="8"/><text class="h" x="445" y="238">B · Pretrained U-Net</text><text class="t" x="445" y="260">6 bands, min–max per scene</text><text class="t" x="445" y="280">128 px tiles, stride 96, averaged</text><text class="sub" x="445" y="304">water if softmax &gt; 0.5, and valid</text><text class="sub" x="445" y="322">segments water, not pollution</text>
+        <polyline class="ln" points="195,338 195,366 380,366 380,382" marker-end="url(#b4)"/><polyline class="ln" points="565,338 565,366 380,366"/>
+        <rect class="box" x="130" y="384" width="500" height="52" rx="8"/><text class="h" x="145" y="408">Erode the mask by 1 pixel</text><text class="sub" x="145" y="426">removes shoreline mixed pixels</text>
+        <line class="ln" x1="380" y1="436" x2="380" y2="458" marker-end="url(#b4)"/>
+        <rect class="box lake" x="130" y="460" width="500" height="52" rx="8"/><text class="h" x="145" y="484">Common water = water on both dates</text><text class="sub" x="145" y="502">every indicator uses the same pixels (needs at least 10)</text>
+        <line class="ln" x1="380" y1="512" x2="380" y2="534" marker-end="url(#b4)"/>
+        <rect class="box" x="130" y="536" width="500" height="92" rx="8"/><text class="h" x="145" y="560">Unitless proxies, median before and after</text><text class="t" x="145" y="582">NDCI = (B05−B04)/(B05+B04)  red-edge algae proxy</text><text class="t" x="145" y="601">NDTI = (B04−B03)/(B04+B03)  turbidity proxy</text><text class="t" x="145" y="620">(B04+B03)/B02  visible turbidity ratio</text>
+        <line class="ln" x1="380" y1="628" x2="380" y2="650" marker-end="url(#b4)"/>
+        <rect class="box" x="130" y="652" width="500" height="52" rx="8"/><text class="h" x="145" y="676">Algae-proxy increase</text><text class="sub" x="145" y="694">common-water pixels where NDCI rose by more than 0.1</text>
+        <line class="ln" x1="380" y1="704" x2="380" y2="724" marker-end="url(#b4)"/>
+        <rect class="box" x="130" y="726" width="500" height="50" rx="8"/><text class="h" x="145" y="748">Result: 686.70 ha comparable, 314.55 ha increase</text><text class="sub" x="145" y="766">U-Net mask · 93.0% clear pairs · proxies, not concentrations</text>
+      </svg>
+      </div>
+      <figcaption>The two masks are different methods, so they give different water areas on purpose. The indicators are optical proxies and are not chlorophyll, NTU, pathogens or drinking-water safety.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section>
+  <h2>4 · Training and validation of the forest model</h2>
+  <p>How the random forest was trained on the Rondônia pair and tested on a strip it never saw, with the measured results beside the NDVI rule.</p>
+  <figure>
+    <div class="frame">
+    <svg viewBox="0 0 1100 650" role="img" aria-label="Training pipeline and results: scenes and Hansen labels give 16 features and labels; a western 70 percent trains, a six-column gap separates it from an eastern holdout; results compare the random forest with the NDVI baseline.">
+      <defs><marker id="b5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+        <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="var(--card)"/><line x1="0" y1="0" x2="0" y2="8" stroke="var(--muted)" stroke-width="2"/></pattern></defs>
+      <rect class="box" x="20" y="24" width="330" height="76" rx="8"/><text class="h" x="34" y="48">Scene pair</text><text class="sub" x="34" y="68">8 Jul 2019 and 21 Jul 2024, tile T20LLQ</text><text class="sub" x="34" y="85">30 m grid, SCL-masked</text>
+      <rect class="box ref data" x="380" y="24" width="330" height="76" rx="8"/><text class="h" x="394" y="48">Hansen GFC 2024 v1.12</text><text class="sub" x="394" y="68">lossyear · treecover2000 · datamask</text><text class="sub" x="394" y="85">a map reference, not field truth</text>
+      <line class="ln" x1="185" y1="100" x2="185" y2="132" marker-end="url(#b5)"/><line class="ln" x1="545" y1="100" x2="545" y2="132" marker-end="url(#b5)"/>
+      <rect class="box ml" x="20" y="134" width="330" height="128" rx="8"/><text class="h" x="34" y="158">16 paired-image features</text><text class="t" x="34" y="180">NDVI, NBR, NDMI, MNDWI</text><text class="sub" x="34" y="198">each as before, after and delta (12)</text><text class="t" x="34" y="222">red, NIR, SWIR1, SWIR2 reflectance delta (4)</text><text class="sub" x="34" y="246">most important: SWIR1 and SWIR2 change</text>
+      <rect class="box data" x="380" y="134" width="330" height="128" rx="8"/><text class="h" x="394" y="158">Labels</text><text class="t" x="394" y="180">loss = Hansen loss year in 2020–2023</text><text class="t" x="394" y="200">canopy2000 ≥ 30%, datamask = 1</text><text class="t" x="394" y="220">years 2019 and 2024 are excluded</text><text class="sub" x="394" y="244">annual labels cannot say if loss came before the image</text>
+      <polyline class="ln" points="185,262 185,290 365,290 365,306" marker-end="url(#b5)"/><polyline class="ln" points="545,262 545,290 365,290"/>
+      <text class="tag" x="20" y="322">FIXED GEOGRAPHIC SPLIT (columns of the scene, schematic)</text>
+      <rect x="20" y="336" width="450" height="64" fill="var(--s3)" opacity=".28" stroke="var(--s3)" stroke-width="1.5"/><text class="h" x="34" y="364">West 70% · train</text><text class="sub" x="34" y="384">9,449 samples · 2,039 loss</text>
+      <rect class="hatch" x="470" y="336" width="26" height="64" stroke="var(--muted)" stroke-width="1"/>
+      <rect x="496" y="336" width="204" height="64" fill="var(--s2)" opacity=".28" stroke="var(--s2)" stroke-width="1.5"/><text class="h" x="510" y="364">East 30% · holdout</text><text class="sub" x="510" y="384">3,199 · 731 loss</text>
+      <text class="m" x="20" y="418">columns &lt; 0.7·width − 3</text><text class="m" x="483" y="418" text-anchor="middle">6-column gap</text><text class="m" x="700" y="418" text-anchor="end">columns ≥ 0.7·width + 3</text>
+      <text class="sub" x="20" y="440">The holdout is picked by position, never by score. It is a strip of the same scene pair,</text><text class="sub" x="20" y="456">so this is not a test in another country or year.</text>
+      <line class="ln" x1="245" y1="466" x2="245" y2="488" marker-end="url(#b5)"/>
+      <rect class="box ml" x="20" y="490" width="330" height="108" rx="8"/><text class="h" x="34" y="514">Train the random forest</text><text class="t" x="34" y="536">160 trees · depth 14 · min leaf 8</text><text class="t" x="34" y="556">balanced_subsample · seed 42</text><text class="sub" x="34" y="580">saved to models/forest_rf.joblib with metrics.json</text>
+      <line class="ln" x1="350" y1="544" x2="400" y2="544" marker-end="url(#b5)"/>
+      <rect class="box" x="402" y="490" width="298" height="108" rx="8"/><text class="h" x="416" y="514">Score on the holdout</text><text class="t" x="416" y="536">same pixels, same labels</text><text class="t" x="416" y="556">forest vs the NDVI-drop rule</text><text class="sub" x="416" y="580">precision · recall · F1 · IoU · AP</text>
+
+      <text class="tag" x="760" y="30">HOLDOUT RESULTS</text>
+      <g transform="translate(760,44)">
+        <line class="grid" x1="30" x2="330" y1="200" y2="200"/><line class="grid" x1="30" x2="330" y1="150" y2="150"/><line class="grid" x1="30" x2="330" y1="100" y2="100"/><line class="grid" x1="30" x2="330" y1="50" y2="50"/><line class="axis" x1="30" x2="330" y1="0" y2="0" opacity=".25"/>
+        <text x="24" y="204" text-anchor="end" style="font-size:11px">0</text><text x="24" y="154" text-anchor="end" style="font-size:11px">.25</text><text x="24" y="104" text-anchor="end" style="font-size:11px">.5</text><text x="24" y="54" text-anchor="end" style="font-size:11px">.75</text><text x="24" y="4" text-anchor="end" style="font-size:11px">1</text>
+        <!-- groups: precision, recall, F1, IoU, AP; 200px = 1.0; each group 60px wide -->
+        <rect x="42" y="45.6" width="22" height="154.4" fill="var(--ml)"/><rect x="66" y="43.6" width="22" height="156.4" fill="var(--muted)" opacity=".7"/>
+        <rect x="102" y="33.1" width="22" height="166.9" fill="var(--ml)"/><rect x="126" y="58.8" width="22" height="141.2" fill="var(--muted)" opacity=".7"/>
+        <rect x="162" y="39.6" width="22" height="160.4" fill="var(--ml)"/><rect x="186" y="51.6" width="22" height="148.4" fill="var(--muted)" opacity=".7"/>
+        <rect x="222" y="66" width="22" height="134" fill="var(--ml)"/><rect x="246" y="82" width="22" height="118" fill="var(--muted)" opacity=".7"/>
+        <rect x="282" y="23.4" width="22" height="176.6" fill="var(--ml)"/><rect x="306" y="76.2" width="22" height="123.8" fill="var(--muted)" opacity=".7"/>
+        <g style="font-size:10px;font-family:var(--mono)" text-anchor="middle"><text x="53" y="40">.77</text><text x="77" y="38">.78</text><text x="113" y="28">.83</text><text x="137" y="53">.71</text><text x="173" y="34">.80</text><text x="197" y="46">.74</text><text x="233" y="61">.67</text><text x="257" y="77">.59</text><text x="293" y="18">.88</text><text x="317" y="71">.62</text></g>
+        <g style="font-size:11px" text-anchor="middle"><text x="65" y="222">precision</text><text x="125" y="222">recall</text><text x="185" y="222">F1</text><text x="245" y="222">IoU</text><text x="305" y="222">avg prec.</text></g>
+      </g>
+      <g transform="translate(760,296)"><rect x="0" y="0" width="14" height="14" fill="var(--ml)"/><text x="22" y="12" style="fill:var(--ink);font-size:12.5px;font-family:var(--font)">Random forest</text><rect x="150" y="0" width="14" height="14" fill="var(--muted)" opacity=".7"/><text x="172" y="12" style="fill:var(--ink);font-size:12.5px;font-family:var(--font)">NDVI baseline</text></g>
+
+      <text class="tag" x="760" y="352">CONFUSION COUNTS (3,199 PIXELS)</text>
+      <g transform="translate(760,366)" style="font-size:12px">
+        <text x="0" y="14" class="h">Random forest</text><text x="0" y="34" class="t">true loss found 610 · missed 121</text><text x="0" y="52" class="t">false alarms 180 · true no-loss 2,288</text>
+        <text x="0" y="86" class="h">NDVI baseline</text><text x="0" y="106" class="t">true loss found 516 · missed 215</text><text x="0" y="124" class="t">false alarms 144 · true no-loss 2,324</text>
+      </g>
+      <text class="sub" x="760" y="540">The forest finds 94 more true-loss pixels and</text><text class="sub" x="760" y="557">misses fewer, at the cost of 36 more false alarms.</text>
+    </svg>
+    </div>
+    <figcaption>Numbers are from <span class="mono">models/metrics.json</span>: the forest beats the NDVI rule mainly on recall (0.834 vs 0.706) and average precision (0.883 vs 0.619). They measure agreement with Hansen labels in one region and say nothing about other countries or years.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>5 · Datasets and reused work</h2>
+  <p>What each source provides, what it is used for here, how it is licensed, and the caveat that travels with it.</p>
+  <figure>
+    <div class="frame">
+    <div class="tbl" role="table" aria-label="Datasets and reused work">
+      <div></div><div class="cell head s1">Source</div><div class="cell head s2">Used for</div><div class="cell head s3">Licence · access</div><div class="cell head ml">Caveat</div>
+
+      <div class="rowlab">Imagery</div>
+      <div class="cell c1"><b>Sentinel-2 Collection 1 L2A</b> via Element 84 Earth Search, bands blue to SWIR2, red-edge B05 and SCL.</div>
+      <div class="cell c2">Both analyses. Cached pair for each case study; fetch mode picks the clearest covering scene per date.</div>
+      <div class="cell c3">Free and open Copernicus terms. Public HTTPS, no account or key.</div>
+      <div class="cell na">One scene per date, not a composite. Atmosphere and season can change values.</div>
+
+      <div class="rowlab">Forest labels</div>
+      <div class="cell c1"><b>Hansen Global Forest Change 2024 v1.12</b>: treecover2000, lossyear, datamask at 30 m.</div>
+      <div class="cell c2">Training labels, the eligible-forest support, and the holdout scoring.</div>
+      <div class="cell c3">CC BY 4.0. Google Cloud Storage tiles, one 10° tile per region.</div>
+      <div class="cell na">Annual satellite-derived loss, not field truth or a legal finding of deforestation.</div>
+
+      <div class="rowlab">Water model</div>
+      <div class="cell c1"><b>Pretrained U-Net</b> (6 input bands, 2 classes) from Iulia-plesu/lake-detection-water-quality.</div>
+      <div class="cell c2">Optional water mask for the lake analysis. Weights fetched once and checked against the LFS SHA-256.</div>
+      <div class="cell c3">Apache-2.0. 124,243,147 bytes, SHA-256 60ba90b7…c7d1f4.</div>
+      <div class="cell na">Segments water; it is not a pollution classifier. No independent segmentation reference yet.</div>
+
+      <div class="rowlab">Code reused</div>
+      <div class="cell c1"><b>TerraVision</b> (MIT), <b>waterquality</b> (MIT), <b>Forest-CD</b> (MIT), all kept unchanged under <span class="mono">references/</span>.</div>
+      <div class="cell c2">TerraVision: SCL masking and NDVI-difference workflow. waterquality: the NDCI and turbidity ratio forms. Forest-CD: research reference only.</div>
+      <div class="cell c3">Pinned git revisions recorded in THIRD_PARTY_NOTICES.md.</div>
+      <div class="cell na">Forest-CD’s network is not run or claimed. Water ratios use nearby Sentinel-2 bands, uncalibrated.</div>
+
+      <div class="rowlab">Case study 1</div>
+      <div class="cell c1"><b>Rondônia forest frontier</b>, Brazil. Box −64.60, −9.70 to −64.52, −9.62.</div>
+      <div class="cell c2">Jul–Sep 2019 → Jul–Sep 2024, same season. Scenes S2A_T20LLQ 8 Jul 2019 and 21 Jul 2024.</div>
+      <div class="cell c3">245.43 ha candidate loss in 84 regions, 99.79% clear pairs.</div>
+      <div class="cell na">One region and one scene pair. No evidence yet of transfer to other places.</div>
+
+      <div class="rowlab">Case study 2</div>
+      <div class="cell c1"><b>Loktak Lake</b>, Manipur, India. Box 93.77, 24.47 to 93.83, 24.53.</div>
+      <div class="cell c2">Jan–Mar 2020 → Jan–Mar 2024, clear observations.</div>
+      <div class="cell c3">686.70 ha comparable water, 314.55 ha above the algae-proxy threshold, 93.0% clear pairs.</div>
+      <div class="cell na">Floating mats and shallow bottoms confound the proxies. No water samples to calibrate against.</div>
+    </div>
+    </div>
+    <figcaption>Hatched cells are limits. Every figure on this sheet comes from the project’s own README, VALIDATION.md, metrics.json, summary.json and source code.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>6 · What the results do and do not support</h2>
+  <p>A one-glance ledger for the jury Q&amp;A, taken from the project’s own wording.</p>
+  <figure>
+    <div class="two">
+      <div class="cell c3"><b>Supported</b>
+        <ul class="ledger yes" style="margin-top:10px">
+          <li><span class="mk">✓</span><span>Candidate tree-cover loss is mapped on real Sentinel-2 pairs, with hectares counted on clear pixels only.</span></li>
+          <li><span class="mk">✓</span><span>A trained forest agrees with Hansen labels better than the NDVI rule on a held-out strip: F1 0.802 vs 0.742.</span></li>
+          <li><span class="mk">✓</span><span>Open-water extent and optical algae and turbidity proxies are compared on the same observed water pixels.</span></li>
+          <li><span class="mk">✓</span><span>Every output is georeferenced and reproducible: ZIP, GeoTIFF, GeoJSON, CSV and source scene IDs.</span></li>
+          <li><span class="mk">✓</span><span>The demo runs offline from cached scenes; 14 tests pass.</span></li>
+        </ul>
+      </div>
+      <div class="cell c1"><b>Not claimed</b>
+        <ul class="ledger no" style="margin-top:10px">
+          <li><span class="mk">✕</span><span>Verified deforestation, or a legal or field-validated finding.</span></li>
+          <li><span class="mk">✕</span><span>That the forest model works in other countries or years; the holdout is a strip of the same scene.</span></li>
+          <li><span class="mk">✕</span><span>Calibrated probabilities: forest scores are not confidence values.</span></li>
+          <li><span class="mk">✕</span><span>Chlorophyll, NTU, sewage, bacteria, heavy metals or drinking-water safety from the lake proxies.</span></li>
+          <li><span class="mk">✕</span><span>Carbon savings, a named-site deployment, or validation of uploaded or arbitrary regions.</span></li>
+        </ul>
+      </div>
+    </div>
+    <figcaption>The map areas use user-adjustable filters on a different pixel population from the holdout, so hectares must not be inferred from F1.</figcaption>
+  </figure>
+</section>
+</main>
+</body></html>

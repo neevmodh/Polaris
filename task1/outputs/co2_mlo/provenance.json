@@ -1,0 +1,22 @@
+{
+  "site": "Mauna Loa, Hawaii",
+  "gas": "co2",
+  "unit": "ppm",
+  "source": "https://gml.noaa.gov/aftp/data/trace_gases/co2/in-situ/surface/txt/co2_mlo_surface-insitu_1_ccgg_DailyData.txt",
+  "sha256": "d9666268aad82eaa6a3c4cef920792e57b272fbb6f98055f3660a8b8e3841d3e",
+  "retrieved_at": "2026-10-07T17:10:07.768583+00:00",
+  "selected_model": "Lag Ridge",
+  "validation_winner": "Lag Ridge",
+  "split": {
+    "train_start": "2018-01-01",
+    "train_end_exclusive": "2023-10-05",
+    "test_start": "2024-11-17",
+    "last_observation": "2025-12-30",
+    "training_rows": 10286,
+    "calibration_rows": 1419,
+    "test_rows": 1649
+  },
+  "interval": "Nominal 90% absolute-error bands calibrated before test; temporal coverage is not guaranteed.",
+  "scope": "Daily dry-air concentration at one station; not emissions, street-level exposure or a spatial interpolation.",
+  "citation": "G. P\u00e9tron, P. Handley, J. Hakala, J. Kofler, K. W. Thoning, A. Crotwell, A. Clarke, J. Fernandez, I. Crocker, R. Burgener, B. Thomas, A. Colton, S. Jordan, L. Longren, M. Doneghey, M. Trudeau, T. Mefford, S. DeVogel, A. Searle, X. Lan, J. Mauss, C. Smith, B. Vasel, S. Morris, J. Miller and J. Mund (2026), Atmospheric Carbon Dioxide Dry Air Mole Fractions from continuous measurements at Mauna Loa, Hawaii, Utqia\u0121vik, Alaska, American Samoa and South Pole, 1973-present. Version 2026-08-11, National Oceanic and Atmospheric Administration (NOAA), Global Monitoring Laboratory (GML), Boulder, Colorado, USA https://doi.org/10.15138/yaf1-bk21"
+}

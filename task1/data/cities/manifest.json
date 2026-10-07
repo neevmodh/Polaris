@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Noida",
+    "latitude": 28.5355,
+    "longitude": 77.391,
+    "station": "NOIDA",
+    "gas": "co2",
+    "unit": "ppm",
+    "file": "data/cities/co2_noida.csv",
+    "sha256": "a2c825f5b5cdae896f4706f51588d1648c79554e4d5fc31eb571ad2c7838dd0c",
+    "source_rows": 1460,
+    "rejected_rows": 0,
+    "origin": "NOAA CarbonTracker CT2026 \u00b7 regional model estimates",
+    "variable": "pbl_co2",
+    "scope": "Daily pressure-averaged boundary-layer CO\u2082 in a 3\u00b0 longitude \u00d7 2\u00b0 latitude grid cell. Not a city sensor or street-level measurement.",
+    "grid_latitude": 29.0,
+    "grid_longitude": 76.5,
+    "grid_bounds": [
+      75.0,
+      28.0,
+      78.0,
+      30.0
+    ],
+    "url": "https://gml.noaa.gov/aftp/products/carbontracker/co2/CT2026/molefractions/co2_total/",
+    "retrieved_at": "2026-10-07T19:08:33.772258+00:00",
+    "release": "CT2026",
+    "citation": "Jacobson et al. (2026), CarbonTracker CT2026, doi:10.25925/hqp0-rk68.",
+    "license": "NOAA CarbonTracker usage policy: unrestricted non-commercial use with attribution. See https://gml.noaa.gov/ccgg/carbontracker/CT2026/citation.php",
+    "last": "2025-12-30",
+    "eligible": true
+  },
+  {
+    "name": "Ahmedabad",
+    "latitude": 23.0225,
+    "longitude": 72.5714,
+    "station": "AHMEDABAD",
+    "gas": "co2",
+    "unit": "ppm",
+    "file": "data/cities/co2_ahmedabad.csv",
+    "sha256": "ee9ac4eb2eda125b40fa41c9510be0fe6cd1b10414c339bfdf4e233b43e59667",
+    "source_rows": 1460,
+    "rejected_rows": 0,
+    "origin": "NOAA CarbonTracker CT2026 \u00b7 regional model estimates",
+    "variable": "pbl_co2",
+    "scope": "Daily pressure-averaged boundary-layer CO\u2082 in a 3\u00b0 longitude \u00d7 2\u00b0 latitude grid cell. Not a city sensor or street-level measurement.",
+    "grid_latitude": 23.0,
+    "grid_longitude": 73.5,
+    "grid_bounds": [
+      72.0,
+      22.0,
+      75.0,
+      24.0
+    ],
+    "url": "https://gml.noaa.gov/aftp/products/carbontracker/co2/CT2026/molefractions/co2_total/",
+    "retrieved_at": "2026-10-07T19:08:33.774541+00:00",
+    "release": "CT2026",
+    "citation": "Jacobson et al. (2026), CarbonTracker CT2026, doi:10.25925/hqp0-rk68.",
+    "license": "NOAA CarbonTracker usage policy: unrestricted non-commercial use with attribution. See https://gml.noaa.gov/ccgg/carbontracker/CT2026/citation.php",
+    "last": "2025-12-30",
+    "eligible": true
+  }
+]

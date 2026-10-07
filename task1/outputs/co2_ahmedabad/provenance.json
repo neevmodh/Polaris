@@ -1,0 +1,33 @@
+{
+  "site": "Ahmedabad",
+  "gas": "co2",
+  "unit": "ppm",
+  "source": "https://gml.noaa.gov/aftp/products/carbontracker/co2/CT2026/molefractions/co2_total/",
+  "sha256": "ee9ac4eb2eda125b40fa41c9510be0fe6cd1b10414c339bfdf4e233b43e59667",
+  "retrieved_at": "2026-10-07T19:08:33.774541+00:00",
+  "selected_model": "Lag Ridge",
+  "latitude": 23.0225,
+  "longitude": 72.5714,
+  "validation_winner": "Lag Ridge",
+  "split": {
+    "train_start": "2022-01-01",
+    "train_end_exclusive": "2024-11-17",
+    "test_start": "2025-06-09",
+    "last_observation": "2025-12-30",
+    "training_rows": 7061,
+    "calibration_rows": 1342,
+    "test_rows": 1349
+  },
+  "interval": "Nominal 90% absolute-error bands calibrated before test; temporal coverage is not guaranteed.",
+  "scope": "Daily pressure-averaged boundary-layer CO\u2082 in a 3\u00b0 longitude \u00d7 2\u00b0 latitude grid cell. Not a city sensor or street-level measurement.",
+  "source_kind": "NOAA CarbonTracker CT2026 \u00b7 regional model estimates",
+  "source_variable": "pbl_co2",
+  "grid_bounds": [
+    72.0,
+    22.0,
+    75.0,
+    24.0
+  ],
+  "license": "NOAA CarbonTracker usage policy: unrestricted non-commercial use with attribution. See https://gml.noaa.gov/ccgg/carbontracker/CT2026/citation.php",
+  "citation": "Jacobson et al. (2026), CarbonTracker CT2026, doi:10.25925/hqp0-rk68."
+}

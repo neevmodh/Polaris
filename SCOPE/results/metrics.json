@@ -1,0 +1,118 @@
+{
+  "data_source": "SYNTHETIC",
+  "alpha": 0.1,
+  "features": [
+    "sector",
+    "activity",
+    "log_turnover",
+    "log_employees",
+    "year",
+    "renewable_share"
+  ],
+  "s1": {
+    "best_model": "ridge",
+    "test": {
+      "rmse_log": 0.5490179823312741,
+      "mae_log": 0.4417106360448579,
+      "r2_log": 0.9661185636570278,
+      "median_pct_error": 37.44646502058174,
+      "train_rmse_log": 0.5229827706735015,
+      "cv_rmse_log": 0.5491548555783464,
+      "overfit_ratio_test_over_train": 1.0497821594088925,
+      "overfit_flag": false,
+      "shipped_model_rmse_log": 0.5463480669554721
+    },
+    "baseline_test": {
+      "rmse_log": 1.0056299041980168,
+      "mae_log": 0.8184843167061463,
+      "r2_log": 0.886324981603145,
+      "median_pct_error": 62.90347545178297
+    },
+    "improvement_vs_baseline_rmse_pct": 45.67106003165438,
+    "improvement_95ci_pct": [
+      39.474319449881904,
+      51.293727822338795
+    ],
+    "interval_method": "mondrian",
+    "interval_selection_scores": {
+      "normalized": 2.362965139969406,
+      "mondrian": 2.3257498005437505
+    },
+    "interval_coverage_test": 0.8944636678200693,
+    "target_coverage": 0.9,
+    "sector_coverage_min_n20": {
+      "Automobiles": 0.9310344827586207,
+      "Banking & Finance": 0.9433962264150944,
+      "Cement": 0.974025974025974,
+      "Chemicals": 0.8148148148148148,
+      "FMCG": 0.8118811881188119,
+      "IT Services": 0.9035087719298246,
+      "Iron & Steel": 0.7391304347826086,
+      "Oil & Gas": 0.9186046511627907,
+      "Pharmaceuticals": 0.9390243902439024,
+      "Power Generation": 0.9883720930232558,
+      "Real Estate & Construction": 0.8695652173913043,
+      "Textiles": 0.8782608695652174
+    },
+    "worst_sector_coverage": 0.7391304347826086,
+    "median_interval_factor": 5.878232330736677,
+    "out_of_time_2024plus": {
+      "n": 380,
+      "model_rmse_log": 0.5501266871566015,
+      "baseline_rmse_log": 1.0239270985108229
+    }
+  },
+  "s2": {
+    "best_model": "ridge",
+    "test": {
+      "rmse_log": 0.5138610652045903,
+      "mae_log": 0.39882343694780836,
+      "r2_log": 0.924763158953658,
+      "median_pct_error": 30.978158014853918,
+      "train_rmse_log": 0.5043567751398231,
+      "cv_rmse_log": 0.529368796654563,
+      "overfit_ratio_test_over_train": 1.0188443786883448,
+      "overfit_flag": false,
+      "shipped_model_rmse_log": 0.5103222548884002
+    },
+    "baseline_test": {
+      "rmse_log": 0.9020739174737076,
+      "mae_log": 0.7031917021610704,
+      "r2_log": 0.7681413095394833,
+      "median_pct_error": 50.94489694335604
+    },
+    "improvement_vs_baseline_rmse_pct": 43.427889333329006,
+    "improvement_95ci_pct": [
+      36.486336629886665,
+      49.49709039270157
+    ],
+    "interval_method": "mondrian",
+    "interval_selection_scores": {
+      "normalized": 2.2458031823381543,
+      "mondrian": 2.196933157470384
+    },
+    "interval_coverage_test": 0.8832179930795848,
+    "target_coverage": 0.9,
+    "sector_coverage_min_n20": {
+      "Automobiles": 0.896551724137931,
+      "Banking & Finance": 0.7830188679245284,
+      "Cement": 0.8701298701298701,
+      "Chemicals": 0.9037037037037037,
+      "FMCG": 0.8613861386138614,
+      "IT Services": 0.9122807017543859,
+      "Iron & Steel": 0.8695652173913043,
+      "Oil & Gas": 0.8837209302325582,
+      "Pharmaceuticals": 0.8536585365853658,
+      "Power Generation": 0.8953488372093024,
+      "Real Estate & Construction": 0.9347826086956522,
+      "Textiles": 0.9130434782608695
+    },
+    "worst_sector_coverage": 0.7830188679245284,
+    "median_interval_factor": 5.656991812635933,
+    "out_of_time_2024plus": {
+      "n": 380,
+      "model_rmse_log": 0.5118521224412187,
+      "baseline_rmse_log": 0.9282604447526532
+    }
+  }
+}

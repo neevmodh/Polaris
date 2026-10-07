@@ -1,0 +1,58 @@
+[
+  {
+    "gas": "co2",
+    "station": "MLO",
+    "url": "https://gml.noaa.gov/aftp/data/trace_gases/co2/in-situ/surface/txt/co2_mlo_surface-insitu_1_ccgg_DailyData.txt",
+    "file": "data/raw/co2_mlo_surface-insitu_1_ccgg_DailyData.txt",
+    "sha256": "d9666268aad82eaa6a3c4cef920792e57b272fbb6f98055f3660a8b8e3841d3e",
+    "retrieved_at": "2026-10-07T17:10:07.768583+00:00"
+  },
+  {
+    "gas": "co2",
+    "station": "BRW",
+    "url": "https://gml.noaa.gov/aftp/data/trace_gases/co2/in-situ/surface/txt/co2_brw_surface-insitu_1_ccgg_DailyData.txt",
+    "file": "data/raw/co2_brw_surface-insitu_1_ccgg_DailyData.txt",
+    "sha256": "0093bac2fcf7193e6db489476e9b760baee550878a241a62367f9604c0e157d6",
+    "retrieved_at": "2026-10-07T17:10:07.554017+00:00"
+  },
+  {
+    "gas": "co2",
+    "station": "SMO",
+    "url": "https://gml.noaa.gov/aftp/data/trace_gases/co2/in-situ/surface/txt/co2_smo_surface-insitu_1_ccgg_DailyData.txt",
+    "file": "data/raw/co2_smo_surface-insitu_1_ccgg_DailyData.txt",
+    "sha256": "04835e4a49410ea0b1d4a2082fc62d928e9dfcc1e28d9fd30ef7478a406c61a2",
+    "retrieved_at": "2026-10-07T17:10:07.777972+00:00"
+  },
+  {
+    "gas": "ch4",
+    "station": "MLO",
+    "url": "https://gml.noaa.gov/aftp/data/trace_gases/ch4/in-situ/surface/txt/ch4_mlo_surface-insitu_1_ccgg_DailyData.txt",
+    "file": "data/raw/ch4_mlo_surface-insitu_1_ccgg_DailyData.txt",
+    "sha256": "8994f4991a77c31a4aa08d9763419c69f13bb8f81683a21fb9fa242814b7d927",
+    "retrieved_at": "2026-10-07T17:10:07.445644+00:00"
+  },
+  {
+    "gas": "ch4",
+    "station": "BRW",
+    "url": "https://gml.noaa.gov/aftp/data/trace_gases/ch4/in-situ/surface/txt/ch4_brw_surface-insitu_1_ccgg_DailyData.txt",
+    "file": "data/raw/ch4_brw_surface-insitu_1_ccgg_DailyData.txt",
+    "sha256": "95c78ea5f9c6fdc1530d20095b375a36395a20ae2d942260660cbd74c05b8eda",
+    "retrieved_at": "2026-10-07T17:10:09.668653+00:00"
+  },
+  {
+    "gas": "ch4",
+    "station": "SMO",
+    "url": "https://gml.noaa.gov/aftp/data/trace_gases/ch4/in-situ/surface/txt/ch4_smo_surface-insitu_1_ccgg_DailyData.txt",
+    "file": "data/raw/ch4_smo_surface-insitu_1_ccgg_DailyData.txt",
+    "sha256": "cd6794b0f3ce1378d143770a2a979f4cd44e05c42fbd222875b86731db48f0b6",
+    "retrieved_at": "2026-10-07T17:10:08.736793+00:00"
+  },
+  {
+    "gas": "co2",
+    "station": "SPO",
+    "url": "https://gml.noaa.gov/aftp/data/trace_gases/co2/in-situ/surface/txt/co2_spo_surface-insitu_1_ccgg_DailyData.txt",
+    "file": "data/raw/co2_spo_surface-insitu_1_ccgg_DailyData.txt",
+    "sha256": "9e214cce7a0e230b50b93f3b80842ca4281854bf7d151b4dd4783d2ee154bb45",
+    "retrieved_at": "2026-10-07T17:10:09.956738+00:00"
+  }
+]

@@ -1,0 +1,32 @@
+location:
+  lat: 23.0225
+  lon: 72.5714
+  timezone: Asia/Kolkata
+plant:
+  solar_kw: 1000
+  wind_kw: 500
+battery:
+  capacity_kwh: 2000
+  soc_initial: 0.60
+  soc_min: 0.20
+  soc_max: 0.90
+  charge_kw: 500
+  discharge_kw: 500
+  eta_charge: 0.95
+  eta_discharge: 0.95
+grid:
+  import_kw: 1000
+  export_kw: 500
+  default_price_rs_kwh: 8.0
+  default_carbon_kg_kwh: 0.75
+optimization:
+  reserve_soc: 0.20
+  weights:
+    cost: 1.0
+    carbon: 4.0
+    battery: 0.05
+    curtailment: 0.10
+    unserved: 1000.0
+forecast:
+  horizon_hours: 24
+  lags: [1,2,3,6,12,24,48,168]

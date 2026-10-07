@@ -1,0 +1,13 @@
+streamlit>=1.65,<2
+rasterio>=1.4,<2
+scikit-learn>=1.6,<2
+requests>=2.32,<3
+plotly>=6,<7
+scipy>=1.15,<2
+pillow>=11,<13
+pandas>=2.2,<3
+numpy>=2,<3
+joblib>=1.4,<2
+pytest>=8,<10
+folium>=0.19,<1
+streamlit-folium>=0.25,<1

@@ -1,0 +1,22 @@
+{
+  "site": "South Pole, Antarctica",
+  "gas": "co2",
+  "unit": "ppm",
+  "source": "https://gml.noaa.gov/aftp/data/trace_gases/co2/in-situ/surface/txt/co2_spo_surface-insitu_1_ccgg_DailyData.txt",
+  "sha256": "9e214cce7a0e230b50b93f3b80842ca4281854bf7d151b4dd4783d2ee154bb45",
+  "retrieved_at": "2026-10-07T17:10:09.956738+00:00",
+  "selected_model": "Seasonal persistence",
+  "validation_winner": "Seasonal persistence",
+  "split": {
+    "train_start": "2018-01-02",
+    "train_end_exclusive": "2023-10-06",
+    "test_start": "2024-11-18",
+    "last_observation": "2025-12-31",
+    "training_rows": 14003,
+    "calibration_rows": 2333,
+    "test_rows": 2736
+  },
+  "interval": "Nominal 90% absolute-error bands calibrated before test; temporal coverage is not guaranteed.",
+  "scope": "Daily dry-air concentration at one station; not emissions, street-level exposure or a spatial interpolation.",
+  "citation": "G. P\u00e9tron, P. Handley, J. Hakala, J. Kofler, K. W. Thoning, A. Crotwell, A. Clarke, J. Fernandez, I. Crocker, R. Burgener, B. Thomas, A. Colton, S. Jordan, L. Longren, M. Doneghey, M. Trudeau, T. Mefford, S. DeVogel, A. Searle, X. Lan, J. Mauss, C. Smith, B. Vasel, S. Morris, J. Miller and J. Mund (2026), Atmospheric Carbon Dioxide Dry Air Mole Fractions from continuous measurements at Mauna Loa, Hawaii, Utqia\u0121vik, Alaska, American Samoa and South Pole, 1973-present. Version 2026-08-11, National Oceanic and Atmospheric Administration (NOAA), Global Monitoring Laboratory (GML), Boulder, Colorado, USA https://doi.org/10.15138/yaf1-bk21"
+}

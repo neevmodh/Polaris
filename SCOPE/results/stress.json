@@ -1,0 +1,205 @@
+{
+  "n_fresh_companies": 3000,
+  "tests": [
+    {
+      "group": "accuracy",
+      "name": "S1 error vs sector-median baseline",
+      "value": 0.5401126969812722,
+      "passed": true,
+      "detail": "RMSE 0.534 vs 0.988 on 15301 unseen company-years; pass if ratio < 0.75"
+    },
+    {
+      "group": "calibration",
+      "name": "S1 90% interval coverage",
+      "value": 0.9000718907260963,
+      "passed": 1.0,
+      "detail": "pass if within 87\u201394%"
+    },
+    {
+      "group": "calibration",
+      "name": "S1 worst-sector coverage",
+      "value": 0.8691834942932397,
+      "passed": 1.0,
+      "detail": "Real Estate & Construction (pass if \u2265 80%)"
+    },
+    {
+      "group": "calibration",
+      "name": "S1 coverage across company size",
+      "value": 0.8974509803921569,
+      "passed": 1.0,
+      "detail": "small/mid/large: small 90%, mid 90%, large 91%"
+    },
+    {
+      "group": "calibration",
+      "name": "S1 coverage across years",
+      "value": 0.8985563792430745,
+      "passed": 1.0,
+      "detail": "worst year 2020 at 90%"
+    },
+    {
+      "group": "robustness",
+      "name": "S1 \u00b110% turnover moves estimate (median, log units)",
+      "value": 0.09948391311514371,
+      "passed": true,
+      "detail": "elasticity \u2248 0.9 \u21d2 expect \u2248 0.09"
+    },
+    {
+      "group": "robustness",
+      "name": "S1 error when employees and renewable share are missing",
+      "value": 0.9999450293809125,
+      "passed": true,
+      "detail": "RMSE 0.534 vs 0.534; pass if < 25% worse"
+    },
+    {
+      "group": "robustness",
+      "name": "S1 prediction independent of row order",
+      "value": 1.1102230246251565e-16,
+      "passed": true,
+      "detail": "same data shuffled"
+    },
+    {
+      "group": "robustness",
+      "name": "S1 learning curve flattens (10% \u2192 100% of training data)",
+      "value": 0.9953278500867142,
+      "passed": true,
+      "detail": "test RMSE 0.562 \u2192 0.556 \u2192 0.547 \u2192 0.544; pass if the last doubling gains < 5%"
+    },
+    {
+      "group": "limits",
+      "name": "S1 regime shift: every company's true emissions +50%",
+      "value": 0.7921704463760538,
+      "passed": null,
+      "detail": "intervals stop covering; the model cannot see a shift it was not trained on"
+    },
+    {
+      "group": "limits",
+      "name": "S1 one sector doubles (cement): coverage in that sector",
+      "value": 0.38814691151919867,
+      "passed": null,
+      "detail": "other sectors stay at 90%"
+    },
+    {
+      "group": "limits",
+      "name": "S1 1% of labels wrong by \u00d71000 (unit errors)",
+      "value": 0.8910528723612836,
+      "passed": null,
+      "detail": "BRSR is known to contain such entries: clean before training"
+    },
+    {
+      "group": "accuracy",
+      "name": "S2 error vs sector-median baseline",
+      "value": 0.6002299159633212,
+      "passed": true,
+      "detail": "RMSE 0.531 vs 0.884 on 15301 unseen company-years; pass if ratio < 0.75"
+    },
+    {
+      "group": "calibration",
+      "name": "S2 90% interval coverage",
+      "value": 0.9002679563427227,
+      "passed": 1.0,
+      "detail": "pass if within 87\u201394%"
+    },
+    {
+      "group": "calibration",
+      "name": "S2 worst-sector coverage",
+      "value": 0.8593220338983051,
+      "passed": 1.0,
+      "detail": "Automobiles (pass if \u2265 80%)"
+    },
+    {
+      "group": "calibration",
+      "name": "S2 coverage across company size",
+      "value": 0.8960988041560478,
+      "passed": 1.0,
+      "detail": "small/mid/large: small 90%, mid 91%, large 90%"
+    },
+    {
+      "group": "calibration",
+      "name": "S2 coverage across years",
+      "value": 0.8973653165552498,
+      "passed": 1.0,
+      "detail": "worst year 2022 at 90%"
+    },
+    {
+      "group": "robustness",
+      "name": "S2 \u00b110% turnover moves estimate (median, log units)",
+      "value": 0.09710784473689316,
+      "passed": true,
+      "detail": "elasticity \u2248 0.9 \u21d2 expect \u2248 0.09"
+    },
+    {
+      "group": "robustness",
+      "name": "S2 error when employees and renewable share are missing",
+      "value": 1.0262489599853475,
+      "passed": true,
+      "detail": "RMSE 0.545 vs 0.531; pass if < 25% worse"
+    },
+    {
+      "group": "robustness",
+      "name": "S2 prediction independent of row order",
+      "value": 0.0,
+      "passed": true,
+      "detail": "same data shuffled"
+    },
+    {
+      "group": "robustness",
+      "name": "S2 learning curve flattens (10% \u2192 100% of training data)",
+      "value": 0.9978765814347773,
+      "passed": true,
+      "detail": "test RMSE 0.551 \u2192 0.529 \u2192 0.527 \u2192 0.526; pass if the last doubling gains < 5%"
+    },
+    {
+      "group": "limits",
+      "name": "S2 regime shift: every company's true emissions +50%",
+      "value": 0.807855695706163,
+      "passed": null,
+      "detail": "intervals stop covering; the model cannot see a shift it was not trained on"
+    },
+    {
+      "group": "limits",
+      "name": "S2 one sector doubles (cement): coverage in that sector",
+      "value": 0.3739565943238731,
+      "passed": null,
+      "detail": "other sectors stay at 90%"
+    },
+    {
+      "group": "limits",
+      "name": "S2 1% of labels wrong by \u00d71000 (unit errors)",
+      "value": 0.8910528723612836,
+      "passed": null,
+      "detail": "BRSR is known to contain such entries: clean before training"
+    }
+  ],
+  "learning_curve": {
+    "s1": {
+      "fractions": [
+        0.1,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "rmse": [
+        0.5618418702964911,
+        0.5557092631399259,
+        0.5467992524495896,
+        0.5442445243696725
+      ]
+    },
+    "s2": {
+      "fractions": [
+        0.1,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "rmse": [
+        0.5506326752259667,
+        0.5289169770370277,
+        0.527093185649095,
+        0.5259739461930854
+      ]
+    }
+  },
+  "passed": 18,
+  "total": 18
+}

@@ -1,0 +1,22 @@
+{
+  "site": "Mauna Loa, Hawaii",
+  "gas": "ch4",
+  "unit": "ppb",
+  "source": "https://gml.noaa.gov/aftp/data/trace_gases/ch4/in-situ/surface/txt/ch4_mlo_surface-insitu_1_ccgg_DailyData.txt",
+  "sha256": "8994f4991a77c31a4aa08d9763419c69f13bb8f81683a21fb9fa242814b7d927",
+  "retrieved_at": "2026-10-07T17:10:07.445644+00:00",
+  "selected_model": "Seasonal Ridge",
+  "validation_winner": "Seasonal Ridge",
+  "split": {
+    "train_start": "2018-01-02",
+    "train_end_exclusive": "2023-10-06",
+    "test_start": "2024-11-18",
+    "last_observation": "2025-12-31",
+    "training_rows": 11979,
+    "calibration_rows": 2569,
+    "test_rows": 2534
+  },
+  "interval": "Nominal 90% absolute-error bands calibrated before test; temporal coverage is not guaranteed.",
+  "scope": "Daily dry-air concentration at one station; not emissions, street-level exposure or a spatial interpolation.",
+  "citation": "G. P\u00e9tron, P. Handley, J. Hakala, J. Kofler, K. W. Thoning, A. Crotwell, A. Clarke, J. Fernandez, I. Crocker, R. Burgener, B. Thomas, A. Colton, S. Jordan, L. Longren, M. Doneghey, M. Trudeau, T. Mefford, S. DeVogel, A. Searle, X. Lan, J. Mauss, C. Smith, B. Vasel, S. Morris, J. Miller and J. Mund (2026), Atmospheric methane from quasi-continuous measurements at Utqia\u0121vik, Alaska, Mauna Loa, Hawaii, and American Samoa, 1986-present. Version: 2026-08-11, National Oceanic and Atmospheric Administration (NOAA), Global Monitoring Laboratory (GML), Boulder, Colorado, USA https://doi.org/10.15138/ve0c-be70"
+}
