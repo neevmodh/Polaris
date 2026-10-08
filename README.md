@@ -15,13 +15,24 @@
 
 POLARIS connects industrial carbon accounting, regional greenhouse-gas forecasting, satellite change screening and renewable microgrid planning. Its Next.js interface calls the actual Python engines, displays their evidence and assumptions, and offers an optional analyst to explain computed results.
 
-**Start here:** [Live dashboard](https://polaris-web-production-bb75.up.railway.app) · [Quick start](#quick-start) · [Architecture](#system-architecture) · [Models](#model-scorecard) · [Datasets](#dataset-catalog) · [Proposal](docs/Polaris_Final_Round_Proposal.pdf)
+**Start here:** [Live dashboard](https://polaris-web-production-bb75.up.railway.app) · [Watch the film](#watch-the-80-second-film) · [Diagrams](#architecture-diagrams) · [Quick start](#quick-start) · [Architecture](#system-architecture) · [Models](#model-scorecard) · [Datasets](#dataset-catalog) · [Proposal](docs/Polaris_Final_Round_Proposal.pdf)
 
 > **Prototype status:** air and satellite workflows use real environmental observations or model products. Carbon gap-filling and default microgrid training use synthetic demonstration data. Satellite outputs are screening signals. Read the [evaluation](#model-scorecard) and [limits](#interpretation-and-current-limits) before quoting a result.
+
+## Watch the 80-second film
+
+<p align="center">
+  <a href="docs/polaris-80s-small.mp4"><img src="docs/assets/polaris-film-poster.jpg" alt="Play the POLARIS film: Measure it. See it. Cut it." width="82%"></a>
+</p>
+
+<p align="center"><a href="docs/polaris-80s-small.mp4"><strong>▶ Play the film</strong></a> (80 s · 720p · sound on) &nbsp;·&nbsp; <a href="docs/Polaris-Pitch-Deck.pptx">Pitch deck (10 slides)</a> &nbsp;·&nbsp; <a href="#architecture-diagrams">Architecture diagrams</a></p>
+
+Nineteen scenes cover Scope 1, 2 and 3, deforestation, lake screening, the micro-grid optimiser and the CO₂ forecasts, then close on every model, dataset and equation the project uses. Every figure in it is one the engines computed, including the two results where a model loses to its own benchmark. On GitHub, clicking the picture opens the file in a player.
 
 <details>
 <summary><strong>Contents</strong></summary>
 
+- [Watch the film](#watch-the-80-second-film), [pitch deck and diagrams](#architecture-diagrams)
 - [Four tasks at a glance](#explore-the-four-tasks) and [screenshots](#screenshots)
 - [System architecture](#system-architecture), request lifecycle and task relationships
 - [Task 1: greenhouse-gas forecasting](#task-1-air)
@@ -70,6 +81,33 @@ Actual application screenshots, combining the unified website with the standalon
 ![Regional city map in the standalone Atmos app](task1/outputs/city_map_preview.jpg)
 
 ![Scope 1 model SHAP explanation on synthetic company data](SCOPE/results/shap_s1.png)
+
+</details>
+
+## Architecture diagrams
+
+One black-and-white diagram per task and one end-to-end flowchart. Shape carries the meaning: double border for a model, cylinder for a data store, parallelogram for an input, dashed for an external source or a fallback path. Click any image for the full-size PNG; each also exists as an editable [SVG](docs/diagrams) and the generating [script](docs/diagrams/source).
+
+| Diagram | Task in this README | Covers |
+|---|---|---|
+| [Carbon footprint](docs/diagrams/1-carbon-architecture.png) | Task 4 | Activity data → factors → Scope 1, 2, 3 → Monte Carlo; ML gap-filler; abatement, runway and dispatch |
+| [Satellite imagery](docs/diagrams/2-satellite-architecture.png) | Task 3 | Sentinel-2 pair → indices → forest model, NDVI baseline, lake analysis → regions → review and export |
+| [Micro-grid](docs/diagrams/3-microgrid-architecture.png) | Task 2 | Data → XGBoost forecast → Pyomo / HiGHS plan → fallback; five scenarios; SCOPE dispatch |
+| [Greenhouse-gas forecasting](docs/diagrams/4-air-forecast-architecture.png) | Task 1 | NOAA CT2026 → chronological split → three models against persistence → verdict, alerts |
+| [End-to-end flowchart](docs/diagrams/5-final-flowchart.png) | All four | Visitor → session → gate → engines → judge the result → show → analyst and actions |
+
+<p align="center"><a href="docs/diagrams/5-final-flowchart.png"><img src="docs/diagrams/5-final-flowchart.png" alt="Polaris end-to-end flowchart, black and white" width="92%"></a></p>
+
+<details>
+<summary><strong>The four task diagrams</strong></summary>
+
+<a href="docs/diagrams/1-carbon-architecture.png"><img src="docs/diagrams/1-carbon-architecture.png" alt="Carbon footprint estimator architecture" width="100%"></a>
+
+<a href="docs/diagrams/2-satellite-architecture.png"><img src="docs/diagrams/2-satellite-architecture.png" alt="Satellite imagery architecture" width="100%"></a>
+
+<a href="docs/diagrams/3-microgrid-architecture.png"><img src="docs/diagrams/3-microgrid-architecture.png" alt="Micro-grid optimisation architecture" width="100%"></a>
+
+<a href="docs/diagrams/4-air-forecast-architecture.png"><img src="docs/diagrams/4-air-forecast-architecture.png" alt="Greenhouse-gas forecasting architecture" width="100%"></a>
 
 </details>
 
@@ -459,13 +497,19 @@ flowchart TB
     Next --> Disk["Uploads · reviews · exports on local disk"]
 ```
 
+**Live deployments.** The full site, with all four engines, runs on [Railway](https://polaris-web-production-bb75.up.railway.app). A second deployment on [Vercel](https://polaris-six-roan.vercel.app) serves the identical interface but cannot run the Python workers, so it forwards every `/api` call to the Railway site (set `POLARIS_API_ORIGIN`; unset, nothing is rewritten). The Vercel copy therefore depends on Railway being up, and large raster uploads are better made on Railway or locally because Vercel limits request bodies to a few megabytes.
+
 Local development has four environments; deployment shares **two compatible dependency groups**. Overrides: `SCOPE_DIR`, `TASK1_DIR`, `TASK3_DIR`, `NETZERO_DIR` and corresponding `*_PYTHON` paths.
 
-Review notes, uploads and caches use container disk; they do not survive redeployment without persistent storage. Authentication, durable storage and access controls are deployment work before private multi-user operational use.
+Review notes, uploads and caches use container disk; they do not survive redeployment without persistent storage.
+
+**Sessions and safeguards.** Uploads and fetched regions belong to a hashed session cookie, so another visitor cannot list, analyse, review or export them; reviews on the two demo cases are shared and labelled public. This is session separation, not user accounts. Each engine accepts at most 24 queued requests (a 503 beyond that), identical in-flight calls share one answer, a worker that never reports ready within 60 s is restarted, uploads are read with a hard 60 MB-per-file cap, and the analyst endpoint has a strict schema and per-client and global hourly quotas. Accounts, durable storage and monitoring remain deployment work before private multi-user operational use.
 
 ## Verification and reproducibility
 
-Scientific-engine tests, worker integration tests and browser checks are included. Run them after setup; this documentation update does not claim a fresh full application test run.
+Scientific-engine tests, worker integration tests and browser checks are included. Run them after setup.
+
+Last full run, 8 October 2026, before the final styling-only commits: **218 Python tests** (SCOPE 72, Task3 68, task1 39, netzero-ai 18, worker bridges 21) and **145 browser checks** in real Chrome all passed, with type-checking and lint clean. This documentation update did not re-run them.
 
 ```bash
 (cd SCOPE && .venv/bin/python -m pytest -q)
@@ -538,10 +582,12 @@ POLARIS/
 | Scope 3 | U.S. sector factors and assumed exchange rate | Supplier-specific activity / suitable regional factors |
 | Microgrid | Synthetic default data, persisted weather and assumed assets / tariff | Site meters, future weather and prospective testing |
 | Dispatch / runway | Simulated demand and assumed delivery processes | Operational records and risk calibration |
-| Deployment | Ephemeral disk and no multi-user isolation | Persistent storage, authentication and monitoring |
+| Deployment | Ephemeral disk; session-scoped isolation rather than accounts; Python work cannot be interrupted mid-call | Persistent storage, authentication, monitoring and cancellable jobs |
+| Analyst | Explains figures the page supplies; the server does not re-verify them, and quotas are in memory per instance | Server-side recomputation of the context and shared quota storage |
 
 ## Project documents and credits
 
+- [Pitch deck](docs/Polaris-Pitch-Deck.pptx) · [80-second film](docs/polaris-80s-small.mp4) · [Architecture diagrams](docs/diagrams)
 - [Final-round proposal](docs/Polaris_Final_Round_Proposal.pdf)
 - [CarbonIQ project document](docs/Polaris_CarbonIQ.pdf)
 - [Greenovators brochure](docs/Brochure%20Greenovators%20hackathon.pdf)

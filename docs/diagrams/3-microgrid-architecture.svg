@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1500" viewBox="0 0 2400 1500">
+<defs><marker id="ah" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#000"/></marker><marker id="ahs" viewBox="0 0 12 12" refX="1" refY="6" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0,0 L12,6 L0,12 z" fill="#000"/></marker></defs>
+<rect width="2400" height="1500" fill="#fff"/>
+<rect x="12" y="12" width="2376" height="1476" fill="none" stroke="#000" stroke-width="3"/>
+<text x="48" y="74" font-family="Arial, Helvetica, sans-serif" font-size="46" font-weight="800" fill="#000">3 · Micro-grid solar and wind optimisation</text>
+<text x="48" y="112" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#000">Engines: netzero-ai (grid-tied site) and SCOPE dispatch (diesel polar and community sites)  ·  forecast → optimise → stress-test</text>
+<line x1="48" y1="132" x2="2352" y2="132" stroke="#000" stroke-width="2"/>
+<rect x="46" y="168" width="2308" height="300" fill="none" stroke="#000" stroke-width="1.4" stroke-dasharray="3 6"/>
+<rect x="60" y="154" width="130" height="26" fill="#fff"/>
+<text x="70" y="174" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="700" letter-spacing="1.5" fill="#000">A · DATA</text>
+<rect x="46" y="548" width="2308" height="300" fill="none" stroke="#000" stroke-width="1.4" stroke-dasharray="3 6"/>
+<rect x="60" y="534" width="344" height="26" fill="#fff"/>
+<text x="70" y="554" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="700" letter-spacing="1.5" fill="#000">B · FORECAST AND OPTIMISE</text>
+<rect x="46" y="928" width="2308" height="300" fill="none" stroke="#000" stroke-width="1.4" stroke-dasharray="3 6"/>
+<rect x="60" y="914" width="356" height="26" fill="#fff"/>
+<text x="70" y="934" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="700" letter-spacing="1.5" fill="#000">C · STRESS-TEST AND REPORT</text>
+<path d="M550.0,288.8 L605.0,288.8 L605.0,293.8 L660.0,293.8" fill="none" stroke="#000" stroke-width="2.4" marker-end="url(#ah)" stroke-linejoin="round"/>
+<path d="M1394.0,367.5 L1394.0,590.0" fill="none" stroke="#000" stroke-width="2.4" marker-end="url(#ah)" stroke-linejoin="round"/>
+<path d="M804.0,375.5 L804.0,520.0 L310.0,520.0 L310.0,600.0" fill="none" stroke="#000" stroke-width="2.4" marker-end="url(#ah)" stroke-linejoin="round"/>
+<path d="M550.0,688.2 L605.0,688.2 L605.0,686.8 L660.0,686.8" fill="none" stroke="#000" stroke-width="2.4" marker-end="url(#ah)" stroke-linejoin="round"/>
+<path d="M1140.0,686.8 L1195.0,686.8 L1195.0,678.2 L1250.0,678.2" fill="none" stroke="#000" stroke-width="2.4" marker-end="url(#ah)" stroke-linejoin="round"/>
+<path d="M1730.0,678.2 L1785.0,678.2 L1785.0,686.8 L1840.0,686.8" fill="none" stroke="#000" stroke-width="2.4" stroke-dasharray="9 7" marker-end="url(#ah)" stroke-linejoin="round"/>
+<path d="M2080.0,363.5 L2080.0,535.0 L1634.0,535.0 L1634.0,590.0" fill="none" stroke="#000" stroke-width="2.4" stroke-dasharray="9 7" marker-end="url(#ah)" stroke-linejoin="round"/>
+<path d="M1349.8,766.4 L1350.0,890.0 L310.0,890.0 L310.0,984.0" fill="none" stroke="#000" stroke-width="2.4" marker-end="url(#ah)" stroke-linejoin="round"/>
+<path d="M550.0,1058.8 L660.0,1058.8" fill="none" stroke="#000" stroke-width="2.4" marker-end="url(#ah)" stroke-linejoin="round"/>
+<path d="M1140.0,1058.8 L1250.0,1058.8" fill="none" stroke="#000" stroke-width="2.4" stroke-dasharray="9 7" marker-end="url(#ah)" stroke-linejoin="round"/>
+<path d="M1730.0,1058.8 L1840.0,1058.8" fill="none" stroke="#000" stroke-width="2.4" marker-end="url(#ah)" stroke-linejoin="round"/>
+<path d="M900.0,1133.5 L900.0,1170.0 L2080.0,1170.0 L2080.0,1133.5" fill="none" stroke="#000" stroke-width="2.4" marker-end="url(#ah)" stroke-linejoin="round"/>
+<polygon points="96,214 550,214 524,363.52 70,363.52" stroke="#000" fill="#fff" stroke-width="2.4"/>
+<text x="310.0" y="263.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" fill="#000">Weather, solar, load</text>
+<text x="310.0" y="296.6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">generate_demo_data.py, seeded</text>
+<text x="310.0" y="323.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">or PVGIS · Open-Meteo · UCI loaders</text>
+<text x="310.0" y="350.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">clean_and_merge.py</text>
+<path d="M660,228 v131.51999999999998 a240.0,16 0 0 0 480,0 v-131.51999999999998 a240.0,16 0 0 0 -480,0 z" stroke="#000" fill="#fff" stroke-width="2.4"/>
+<path d="M660,228 a240.0,16 0 0 0 480,0" fill="none" stroke="#000" stroke-width="2.4"/>
+<text x="900.0" y="276.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" fill="#000">Dataset</text>
+<text x="900.0" y="309.6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">master_hourly.csv (hourly)</text>
+<text x="900.0" y="336.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">solar, wind, load, price, carbon</text>
+<text x="900.0" y="363.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">synthetic demo day, labelled</text>
+<rect x="1250" y="218" width="480" height="149.51999999999998" stroke="#000" fill="#fff" stroke-width="2.4"/>
+<text x="1490.0" y="267.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" fill="#000">config.yaml: the plant</text>
+<text x="1490.0" y="300.6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">solar 1,000 kW · wind 500 kW</text>
+<text x="1490.0" y="327.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">battery 2,000 kWh, 500 kW, 20–90%</text>
+<text x="1490.0" y="354.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">grid import 1,000 kW</text>
+<rect x="1840" y="214" width="480" height="149.51999999999998" stroke="#000" fill="#fff" stroke-width="2.2" stroke-dasharray="11 7"/>
+<text x="2080.0" y="263.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" fill="#000">SCOPE dispatch inputs</text>
+<text x="2080.0" y="296.6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">Open-Meteo ERA5 hourly 2020–2025</text>
+<text x="2080.0" y="323.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">polar and community profiles</text>
+<text x="2080.0" y="350.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">PV and wind physics, simulated demand</text>
+<rect x="70" y="600" width="480" height="176.4" stroke="#000" fill="#fff" stroke-width="2.4"/>
+<rect x="77" y="607" width="466" height="162.4" fill="none" stroke="#000" stroke-width="1.4"/>
+<text x="310.0" y="649.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" fill="#000">Forecaster</text>
+<text x="310.0" y="682.6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">features.py: lags, calendar, weather</text>
+<text x="310.0" y="709.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">XGBoost × 3: solar, wind, load</text>
+<text x="310.0" y="736.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">forecast_all(): 24 h ahead</text>
+<text x="310.0" y="763.3" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">MAE 11.6 / 3.4 / 23.5 kW</text>
+<rect x="660" y="612" width="480" height="149.51999999999998" stroke="#000" fill="#fff" stroke-width="2.4"/>
+<text x="900.0" y="661.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" fill="#000">Prices</text>
+<text x="900.0" y="694.6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">time-of-day tariff ₹/kWh</text>
+<text x="900.0" y="721.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">grid carbon intensity kg/kWh</text>
+<text x="900.0" y="748.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">added to every forecast hour</text>
+<rect x="1250" y="590" width="480" height="176.4" stroke="#000" fill="#fff" stroke-width="2.4"/>
+<rect x="1257" y="597" width="466" height="162.4" fill="none" stroke="#000" stroke-width="1.4"/>
+<text x="1490.0" y="639.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" fill="#000">optimization/model.py</text>
+<text x="1490.0" y="672.6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">Pyomo linear programme, HiGHS</text>
+<text x="1490.0" y="699.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">min cost + carbon + battery wear</text>
+<text x="1490.0" y="726.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">energy balance, SOC dynamics, limits</text>
+<text x="1490.0" y="753.3" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">soft end-of-day reserve</text>
+<rect x="1840" y="612" width="480" height="149.51999999999998" stroke="#000" fill="#fff" stroke-width="2.4"/>
+<text x="2080.0" y="661.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" fill="#000">Fallback planner</text>
+<text x="2080.0" y="694.6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">rule-based greedy dispatch</text>
+<text x="2080.0" y="721.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">used when no optimal plan exists</text>
+<text x="2080.0" y="748.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">result is labelled as a fallback</text>
+<rect x="70" y="984" width="480" height="149.51999999999998" stroke="#000" fill="#fff" stroke-width="2.4"/>
+<rect x="77" y="991" width="466" height="135.51999999999998" fill="none" stroke="#000" stroke-width="1.4"/>
+<text x="310.0" y="1033.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" fill="#000">scenarios.py</text>
+<text x="310.0" y="1066.6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">cloud event · wind drop · load spike</text>
+<text x="310.0" y="1093.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">battery low · grid outage</text>
+<text x="310.0" y="1120.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">same day, re-planned each time</text>
+<rect x="660" y="984" width="480" height="149.51999999999998" stroke="#000" fill="#fff" stroke-width="2.4"/>
+<text x="900.0" y="1033.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" fill="#000">KPIs</text>
+<text x="900.0" y="1066.6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">renewable used and spilled</text>
+<text x="900.0" y="1093.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">grid kWh, cost, CO₂</text>
+<text x="900.0" y="1120.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">unserved kWh, load coverage</text>
+<rect x="1250" y="984" width="480" height="149.51999999999998" stroke="#000" fill="#fff" stroke-width="2.4"/>
+<rect x="1257" y="991" width="466" height="135.51999999999998" fill="none" stroke="#000" stroke-width="1.4"/>
+<text x="1490.0" y="1033.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" fill="#000">SCOPE simulate.py</text>
+<text x="1490.0" y="1066.6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">A rules · B naive forecast · C trained</text>
+<text x="1490.0" y="1093.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">Economy, Green or Survival mode</text>
+<text x="1490.0" y="1120.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">diesel litres, CO₂ t, unserved kWh</text>
+<rect x="1840" y="984" width="480" height="149.51999999999998" stroke="#000" fill="#fff" stroke-width="2.4"/>
+<rect x="1840" y="984" width="14" height="149.51999999999998" fill="#000"/>
+<text x="2087.0" y="1033.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" fill="#000">Polaris sheets</text>
+<text x="2087.0" y="1066.6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">07 Dispatch · 08 Micro-grid</text>
+<text x="2087.0" y="1093.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">saving feeds abatement and runway</text>
+<text x="2087.0" y="1120.4" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" fill="#000">analyst explains the plan</text>
+<rect x="1406.0" y="464.8" width="72.5" height="24" fill="#fff"/>
+<text x="1410.0" y="482.8" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="18" font-style="italic" fill="#000">limits</text>
+<rect x="515.7" y="492.0" width="82.6" height="24" fill="#fff"/>
+<text x="557.0" y="509.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-style="italic" fill="#000">history</text>
+<rect x="531.2" y="660.2" width="92.6" height="24" fill="#fff"/>
+<text x="577.5" y="677.2" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-style="italic" fill="#000">forecast</text>
+<rect x="1111.1" y="658.8" width="112.8" height="24" fill="#fff"/>
+<text x="1167.5" y="675.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-style="italic" fill="#000">priced day</text>
+<rect x="1670.9" y="650.2" width="173.3" height="24" fill="#fff"/>
+<text x="1757.5" y="667.2" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-style="italic" fill="#000">no feasible plan</text>
+<rect x="1629.9" y="507.0" width="294.2" height="24" fill="#fff"/>
+<text x="1777.0" y="524.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-style="italic" fill="#000">SCOPE: LightGBM 168 h + MILP</text>
+<rect x="578.8" y="1030.8" width="52.3" height="24" fill="#fff"/>
+<text x="605.0" y="1047.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-style="italic" fill="#000">plan</text>
+<text x="70" y="1300" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#000">Optimiser result: all five disturbances absorbed except a full grid outage, which sheds load and says so (4,889 kWh unserved).</text>
+<text x="70" y="1342" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" fill="#000">Polar station on diesel: A 49,036 L, B 47,730 L, C 45,503 L a year, so planning ahead saves 7.2% and 9.5 t CO₂.</text>
+<text x="48" y="1424" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" letter-spacing="1.5" fill="#000">LEGEND</text>
+<rect x="48" y="1434" width="46" height="26" fill="#fff" stroke="#000" stroke-width="2"/>
+<text x="104" y="1454" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#000">process</text>
+<rect x="208.56" y="1434" width="46" height="26" fill="#fff" stroke="#000" stroke-width="2"/><rect x="213.56" y="1439" width="36" height="16" fill="none" stroke="#000" stroke-width="1.2"/>
+<text x="264.56" y="1454" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#000">model</text>
+<path d="M348.96000000000004,1442 v14 a23,5 0 0 0 46,0 v-14 a23,5 0 0 0 -46,0 z" fill="#fff" stroke="#000" stroke-width="2"/><path d="M348.96000000000004,1442 a23,5 0 0 0 46,0" fill="none" stroke="#000" stroke-width="2"/>
+<text x="404.96000000000004" y="1454" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#000">data / store</text>
+<polygon points="568.9200000000001,1434 605.9200000000001,1434 596.9200000000001,1460 559.9200000000001,1460" fill="#fff" stroke="#000" stroke-width="2"/>
+<text x="615.9200000000001" y="1454" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#000">input</text>
+<rect x="700.32" y="1434" width="46" height="26" fill="#fff" stroke="#000" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="756.32" y="1454" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#000">external</text>
+<rect x="870.96" y="1434" width="46" height="26" fill="#fff" stroke="#000" stroke-width="2"/><rect x="870.96" y="1434" width="8" height="26" fill="#000"/>
+<text x="926.96" y="1454" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#000">output</text>
+<line x1="1031.44" y1="1447" x2="1081.44" y2="1447" stroke="#000" stroke-width="2.4" marker-end="url(#ah)"/><text x="1091.44" y="1454" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#000">data flow</text>
+<line x1="1181.44" y1="1447" x2="1231.44" y2="1447" stroke="#000" stroke-width="2.4" stroke-dasharray="9 7" marker-end="url(#ah)"/><text x="1241.44" y="1454" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#000">optional / fallback</text>
+</svg>
