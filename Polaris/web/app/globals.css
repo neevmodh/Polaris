@@ -1,13 +1,16 @@
-/* SCOPE · design plan
-   Concept : a survey sheet from a polar station. Ruled sections, a title block in the corner, underlined form fields,
-             one rubber stamp for the data status, a polar graticule in the masthead. No cards, shadows or gradients.
-   Color   : ice-paper and ink neutrals; one hue per emission scope (flare orange, signal blue, spruce green); violet only for ML.
+/* POLARIS · design plan
+   Concept : a classic green-and-white field report. White paper, a deep forest-green masthead and rules, ruled sections,
+             underlined form fields, a polar graticule in the masthead. No cards, shadows or gradients.
+   Color   : green-tinted white and forest-green ink. Data hues stay distinct because they carry meaning: one per emission
+             scope (amber, blue, green), violet only for ML. Chrome is green; data is never green by accident.
    Type    : Archivo for titles and figures, Public Sans for text, JetBrains Mono for units and labels. */
 :root {
-  --bg: #eceff0; --surface: #f9faf9; --raised: #e3e8ea; --ink: #0a1828; --ink2: #2b3f54; --muted: #59697a; --faint: #8392a0;
-  --line: #cbd3d9; --line-strong: #0a1828;
-  --s1: #d4440c; --s2: #1d52c7; --s3: #087a5a; --ml: #5a38b4; --warn: #9a5800; --bad: #b3202a; --good: #087a5a;
-  --s1-soft: #f7ddd0; --s2-soft: #dbe5f8; --s3-soft: #d3ece3; --ml-soft: #e6dff6; --warn-soft: #f6e8cf;
+  --bg: #f2f7f3; --surface: #ffffff; --raised: #e2eee6; --ink: #0c2e22; --ink2: #27503f; --muted: #4a675a; --faint: #7a9487;
+  --line: #c9dccf; --line-strong: #0c4a35;
+  --brand: #0b6b45; --brand-soft: #d6ece0; --brand-ink: #ffffff;
+  --mast: #0c3d2c; --mast-ink: #f4faf6; --mast-dim: #a9cdb9; --mast-line: #1f5a43;
+  --s1: #c4480e; --s2: #1d52c7; --s3: #0e7a4f; --ml: #5a38b4; --warn: #9a5800; --bad: #b3202a; --good: #0e7a4f;
+  --s1-soft: #f8e2d4; --s2-soft: #dbe5f8; --s3-soft: #d3ece0; --ml-soft: #e6dff6; --warn-soft: #f6e8cf;
   --font-display: var(--f-display), "Helvetica Neue", Arial, sans-serif;
   --font-body: var(--f-body), system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: var(--f-mono), ui-monospace, Menlo, monospace;
@@ -15,17 +18,21 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #070f18; --surface: #0b1622; --raised: #112031; --ink: #e8eef4; --ink2: #b9c8d6; --muted: #8a9db0; --faint: #5f7487;
-    --line: #1e3043; --line-strong: #6a859d;
-    --s1: #ff8a52; --s2: #77a6ff; --s3: #3fd0a2; --ml: #b79bff; --warn: #f0b84a; --bad: #ff7b82; --good: #3fd0a2;
-    --s1-soft: #35190d; --s2-soft: #12244a; --s3-soft: #0c2f25; --ml-soft: #281b52; --warn-soft: #33260b; color-scheme: dark;
+    --bg: #06130d; --surface: #0b1f16; --raised: #112b1f; --ink: #e6f3ea; --ink2: #bcd5c5; --muted: #8fb0a0; --faint: #5f8071;
+    --line: #1c3a2c; --line-strong: #6fa58a;
+    --brand: #4cc58c; --brand-soft: #123a29; --brand-ink: #04160d;
+    --mast: #072a1d; --mast-ink: #f0f8f3; --mast-dim: #8fb8a2; --mast-line: #17503a;
+    --s1: #ff8a52; --s2: #77a6ff; --s3: #43d29a; --ml: #b79bff; --warn: #f0b84a; --bad: #ff7b82; --good: #43d29a;
+    --s1-soft: #35190d; --s2-soft: #12244a; --s3-soft: #0c3426; --ml-soft: #281b52; --warn-soft: #33260b; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #070f18; --surface: #0b1622; --raised: #112031; --ink: #e8eef4; --ink2: #b9c8d6; --muted: #8a9db0; --faint: #5f7487;
-  --line: #1e3043; --line-strong: #6a859d;
-  --s1: #ff8a52; --s2: #77a6ff; --s3: #3fd0a2; --ml: #b79bff; --warn: #f0b84a; --bad: #ff7b82; --good: #3fd0a2;
-  --s1-soft: #35190d; --s2-soft: #12244a; --s3-soft: #0c2f25; --ml-soft: #281b52; --warn-soft: #33260b; color-scheme: dark;
+  --bg: #06130d; --surface: #0b1f16; --raised: #112b1f; --ink: #e6f3ea; --ink2: #bcd5c5; --muted: #8fb0a0; --faint: #5f8071;
+  --line: #1c3a2c; --line-strong: #6fa58a;
+  --brand: #4cc58c; --brand-soft: #123a29; --brand-ink: #04160d;
+  --mast: #072a1d; --mast-ink: #f0f8f3; --mast-dim: #8fb8a2; --mast-line: #17503a;
+  --s1: #ff8a52; --s2: #77a6ff; --s3: #43d29a; --ml: #b79bff; --warn: #f0b84a; --bad: #ff7b82; --good: #43d29a;
+  --s1-soft: #35190d; --s2-soft: #12244a; --s3-soft: #0c3426; --ml-soft: #281b52; --warn-soft: #33260b; color-scheme: dark;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
@@ -33,7 +40,7 @@ body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--font-body
 h1, h2, h3, p { margin: 0; }
 button, input, select { font: inherit; color: inherit; }
 a { color: inherit; text-decoration: none; }
-:focus-visible { outline: 2px solid var(--s2); outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 .num { font-variant-numeric: tabular-nums; }
 .mono { font-family: var(--font-mono); }
 .skip { position: absolute; left: 12px; top: -60px; z-index: 50; background: var(--ink); color: var(--bg); padding: 10px 14px; font-weight: 600; }
@@ -299,3 +306,122 @@ svg.flow text.sm { font-size: 11.5px; font-family: var(--font-mono); fill: var(-
 .det { margin-top: 14px; border-top: 1px solid var(--rule); padding-top: 10px; }
 .det summary { cursor: pointer; font-size: 13px; color: var(--muted); }
 .figpre { margin: 10px 0 0; padding: 12px; background: var(--raised); border: 1px solid var(--rule); overflow-x: auto; font: 12px/1.65 var(--font-mono); white-space: pre-wrap; }
+
+
+/* ---- green-and-white skin -------------------------------------------------------------------------------- */
+.mast { background: var(--mast); color: var(--mast-ink); border-bottom: 3px solid var(--brand); }
+.mast-art { color: var(--mast-ink); opacity: .1; }
+.mast .star { color: var(--mast-ink); }
+.brand-name { color: var(--mast-ink); }
+.brand-sub { color: var(--mast-dim); }
+.brand-mark i:nth-child(1) { background: #ffffff; } .brand-mark i:nth-child(2) { background: #8fd6b0; } .brand-mark i:nth-child(3) { background: #43d29a; }
+.nav a { color: var(--mast-dim); border-left-color: var(--mast-line); }
+.nav a:last-child { border-right-color: var(--mast-line); }
+.nav a:hover { color: var(--mast-ink); background: rgba(255,255,255,.07); }
+.nav a[aria-current="page"] { color: var(--mast-ink); background: rgba(255,255,255,.1); }
+.nav a[aria-current="page"]::after { background: #ffffff; }
+.nav .k { color: #78a58e; }
+.mast .icon-btn { border-color: var(--mast-dim); color: var(--mast-ink); }
+.mast .icon-btn:hover { background: var(--mast-ink); color: var(--mast); }
+.subnav { background: var(--surface); border-top: none; border-bottom: 1px solid var(--line); }
+.subnav a[aria-current="page"] { color: var(--brand); border-bottom-color: var(--brand); }
+.subnav a:hover { color: var(--brand); }
+.btn.primary, .icon-btn.primary { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+.btn.primary:hover { background: transparent; color: var(--brand); }
+a.btn:hover, .btn:hover { border-color: var(--brand); }
+.skip { background: var(--mast); color: var(--mast-ink); }
+
+.hero-star { color: var(--brand); opacity: 1; } .hero-star .star { color: var(--brand); } .hero-star circle { fill: var(--mast); }
+
+/* ---- depth, motion and finish ---------------------------------------------------------------------------- */
+::selection { background: var(--brand); color: var(--brand-ink); }
+html { scroll-behavior: smooth; scrollbar-color: var(--brand) var(--raised); }
+body {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(900px 520px at 100% 0%, color-mix(in srgb, var(--brand) 9%, transparent), transparent 62%),
+    radial-gradient(760px 480px at 0% 100%, color-mix(in srgb, var(--s3) 7%, transparent), transparent 60%),
+    radial-gradient(color-mix(in srgb, var(--brand) 14%, transparent) 1px, transparent 1.2px);
+  background-size: auto, auto, 28px 28px;
+  background-attachment: fixed, fixed, scroll;
+}
+
+/* masthead: a slow drift in the graticule so the page never feels static */
+.mast { background-image: linear-gradient(110deg, transparent 0 55%, rgba(255,255,255,.045) 55% 56%, transparent 56%), linear-gradient(180deg, rgba(255,255,255,.04), transparent 60%); }
+.mast-art { animation: drift 90s linear infinite; transform-origin: 60% 40%; }
+@keyframes drift { to { transform: rotate(360deg); } }
+
+/* panels become sheets with a little depth; the green top rule is the page's signature */
+.panel {
+  background: var(--surface); border: 1px solid var(--line); border-top: 3px solid var(--brand); border-radius: 3px;
+  padding: 4px 22px 16px;
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--ink) 5%, transparent), 0 14px 30px -22px color-mix(in srgb, var(--ink) 45%, transparent);
+  transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease;
+}
+.panel:hover { box-shadow: 0 1px 0 color-mix(in srgb, var(--ink) 6%, transparent), 0 22px 40px -24px color-mix(in srgb, var(--ink) 55%, transparent); border-color: color-mix(in srgb, var(--brand) 40%, var(--line)); }
+.panel:has(.hero) { border-top-width: 3px; border-color: var(--line); border-top-color: var(--brand); padding: 0; }
+.panel-h { padding-top: 14px; }
+
+/* the headline number strip reads as tiles */
+.kpis { gap: 14px; border: 0; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-top: 3px solid var(--brand); border-radius: 3px; margin-right: 0; padding: 16px 18px; box-shadow: 0 14px 28px -24px color-mix(in srgb, var(--ink) 50%, transparent); transition: transform .2s ease, box-shadow .2s ease; }
+.kpi:last-child { border-right: 1px solid var(--line); }
+.kpi:hover { transform: translateY(-2px); box-shadow: 0 20px 34px -24px color-mix(in srgb, var(--ink) 60%, transparent); }
+.kpi .v { color: var(--ink); }
+
+/* home: readings and section cards */
+.readings { gap: 14px; border: 0; }
+.reading { background: var(--surface); border: 1px solid var(--line); border-top: 3px solid var(--brand); border-radius: 3px; margin-right: 0; padding: 20px 20px 18px; box-shadow: 0 14px 28px -24px color-mix(in srgb, var(--ink) 50%, transparent); transition: transform .2s ease, box-shadow .2s ease; }
+.reading:last-child { border-right: 1px solid var(--line); }
+.reading:hover { transform: translateY(-3px); box-shadow: 0 22px 36px -24px color-mix(in srgb, var(--ink) 60%, transparent); }
+.reading:hover .rv { text-decoration: none; color: var(--brand); }
+.quad-c { transition: background .2s ease; } .quad-c:hover { background: color-mix(in srgb, var(--brand) 6%, transparent); }
+.quad h3 a:hover { color: var(--brand); }
+
+/* hero: a green wash, and a star that turns slowly inside an orbit */
+.home-hero { position: relative; border-bottom: 0; padding: 34px 34px 40px; margin: 0 0 8px; border-radius: 4px; overflow: hidden;
+  background: linear-gradient(120deg, color-mix(in srgb, var(--brand) 13%, var(--surface)) 0%, var(--surface) 55%), var(--surface);
+  border: 1px solid var(--line); border-top: 3px solid var(--brand); }
+.home-hero::after { content: ""; position: absolute; right: -120px; top: -140px; width: 520px; height: 520px; border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--brand) 22%, transparent), transparent 66%); pointer-events: none; }
+.hero-star { position: relative; z-index: 1; }
+.hero-star .star { animation: spin 48s linear infinite; filter: drop-shadow(0 12px 22px color-mix(in srgb, var(--brand) 35%, transparent)); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.home-hero .title { background: linear-gradient(100deg, var(--ink) 40%, var(--brand)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+/* controls */
+.btn, .icon-btn, .chip-btn, .seg2 button { transition: background .15s ease, color .15s ease, border-color .15s ease, transform .15s ease, box-shadow .15s ease; }
+.btn:not([disabled]):hover, .chip-btn:not([disabled]):hover { transform: translateY(-1px); box-shadow: 0 8px 16px -10px color-mix(in srgb, var(--ink) 55%, transparent); }
+.btn.primary { box-shadow: 0 8px 18px -10px color-mix(in srgb, var(--brand) 80%, transparent); }
+.btn:active, .chip-btn:active { transform: translateY(0); box-shadow: none; }
+.btn, .chip-btn, .seg2, .inp { border-radius: 2px; }
+.chip-btn[aria-pressed="true"], .seg2 button[aria-pressed="true"] { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
+.seg2 { border-color: var(--line-strong); } .seg2 button + button { border-left-color: var(--line-strong); }
+.inp { border-bottom-color: var(--line-strong); } .inp:focus-within { border-bottom-color: var(--brand); background: color-mix(in srgb, var(--brand) 7%, transparent); }
+input[type="range"] { accent-color: var(--brand); }
+
+/* tables and ledgers */
+table.t tbody tr { transition: background .12s ease; } table.t tbody tr:hover td { background: color-mix(in srgb, var(--brand) 6%, transparent); }
+.alert { border-radius: 2px; box-shadow: 0 10px 22px -20px color-mix(in srgb, var(--ink) 50%, transparent); }
+.pill.good { background: color-mix(in srgb, var(--good) 9%, transparent); }
+
+/* page head: a small green marker before the eyebrow, and a rule that draws in */
+.eyebrow::before { content: ""; display: inline-block; width: 22px; height: 3px; background: var(--brand); margin-right: 10px; vertical-align: middle; border-radius: 2px; }
+.head { position: relative; border-bottom-color: var(--line); }
+.head::after { content: ""; position: absolute; left: 0; bottom: -1px; height: 3px; width: 96px; background: var(--brand); animation: grow .7s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes grow { from { width: 0; } }
+
+/* stagger the sheet's blocks in, never leaving them hidden */
+.stack > *, .grid2 > * { animation: rise .5s cubic-bezier(.2, .8, .2, 1) both; }
+.stack > *:nth-child(2), .grid2 > *:nth-child(2) { animation-delay: .06s; }
+.stack > *:nth-child(3) { animation-delay: .12s; } .stack > *:nth-child(4) { animation-delay: .18s; }
+
+@media (max-width: 760px) { .panel { padding: 2px 14px 12px; } .home-hero { padding: 22px 18px 26px; } .mast-art { animation: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .mast-art, .hero-star .star, .head::after, .stack > *, .grid2 > *, .fade { animation: none !important; }
+  .kpi:hover, .reading:hover, .btn:hover, .chip-btn:hover { transform: none; }
+  html { scroll-behavior: auto; }
+}
+@media print { .panel, .kpi, .reading { box-shadow: none !important; transform: none !important; } .home-hero .title { -webkit-text-fill-color: currentColor; background: none; } body { background-image: none; } }
+.kpis { margin-top: 16px; margin-bottom: 8px; }
+.hero-star circle { fill: var(--surface); stroke: var(--brand); stroke-width: 1.2; }
