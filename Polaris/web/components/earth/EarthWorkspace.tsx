@@ -77,14 +77,27 @@ export default function EarthWorkspace({ kind }: { kind: Kind }) {
   }
   useEffect(() => {
     if (!job || job.data.state !== "running") return;
-    const t = setInterval(async () => {
+    // A dropped connection must not leave the job "running" forever: retry with growing delays, then say what happened
+    // and give the fetch button back so the reader can try again.
+    let live = true, fails = 0, timer: ReturnType<typeof setTimeout>;
+    const tick = async () => {
       try {
         const d = await satPost<FetchJob>("fetch_status", { job: job.id });
-        setJob({ id: job.id, data: d });
-        if (d.state === "done") { clearInterval(t); pickCase(d.case); }
-      } catch { clearInterval(t); }
-    }, 1500);
-    return () => clearInterval(t);
+        if (!live) return;
+        fails = 0; setJob({ id: job.id, data: d });
+        if (d.state === "done") { pickCase(d.case); return; }
+        if (d.state === "error") return;
+      } catch (e) {
+        if (!live) return;
+        if (++fails >= 5) {
+          setJob({ id: job.id, data: { state: "error", log: [], case: job.data.case, error: `Lost contact with the server while fetching (${(e as Error).message || "no response"}). The fetch may still be running there; press Fetch again to resume, the cached result is reused.` } });
+          return;
+        }
+      }
+      timer = setTimeout(tick, Math.min(1500 * 2 ** fails, 12000));
+    };
+    timer = setTimeout(tick, 1500);
+    return () => { live = false; clearTimeout(timer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [job?.id, job?.data.state]);
 
@@ -303,6 +316,7 @@ export default function EarthWorkspace({ kind }: { kind: Kind }) {
                   <div className="field"><span className="lab">Review decision</span>
                     <div className="seg2" role="group" aria-label="Review decision" style={{ flexWrap: "wrap" }}>{meta?.review_states.map((x) => <button key={x} aria-pressed={draft.status === x} onClick={() => setDraft({ ...draft, status: x })}>{x}</button>)}</div></div>
                   <div className="field"><label htmlFor="rnote">Notes</label><textarea id="rnote" className="note-in" maxLength={2000} value={draft.note} placeholder="What you see, possible confounders, evidence still needed." onChange={(e) => setDraft({ ...draft, note: e.target.value })} /></div>
+                  <p className="note" style={{ margin: 0 }}>{a?.review_scope === "public demo" ? "Reviews on the demo cases are shared: every visitor sees them. Do not record anything private here." : "Reviews on your own uploads and fetched regions are private to this browser session."}</p>
                   <button className="btn primary" onClick={saveReview} disabled={saving} style={{ alignSelf: "flex-start" }}>{saving ? "Saving…" : "Save review"}</button>
                 </>
               )}

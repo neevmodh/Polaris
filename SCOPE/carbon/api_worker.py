@@ -34,7 +34,7 @@ def meta(_):
            "scope3": [{"key": k, "label": v[1], "ghg": v[2], "naics": v[0], "ef_kg_per_usd": float(S3.load_useeio().loc[v[0]])} for k, v in S3.CATEGORIES.items()],
            "sigmas": {"fuel": F.FUEL_EF_SIGMA, "grid": F.GRID_EF_SIGMA, "spend": F.SPEND_EF_SIGMA},
            "grid_ef": F.GRID_EF_KG_PER_KWH, "usd_to_inr": F.USD_TO_INR, "models_ready": models_ready(),
-           "data_source": (ROOT / "data/processed/DATA_SOURCE.txt").read_text().strip() if (ROOT / "data/processed/DATA_SOURCE.txt").exists() else "UNKNOWN"}
+           "data_source": (ROOT / "data/processed/DATA_SOURCE.txt").read_text(encoding="utf-8").strip() if (ROOT / "data/processed/DATA_SOURCE.txt").exists() else "UNKNOWN"}
     if models_ready():
         from carbon.predict import _load
         b = _load("s1"); out.update(sectors=b["sectors"], activities=b["activities"], train_range=b["train_range"])
@@ -66,10 +66,12 @@ def abate(a):
         d_l = s1 * 1000 / F.FUEL_EF["diesel_l"]; kwh = s2 * 1000 * (1 - td) / F.GRID_EF_KG_PER_KWH
     else:
         d_l, kwh = float(a.get("diesel_l", 0)), float(a.get("kwh", 0))
-        s1, s2 = C.scope1({"diesel_l": d_l}), C.scope2(kwh, td_loss=td)
+        fuel = _fuel(a)
+        d_l = fuel["diesel_l"]
+        s1, s2 = C.scope1(fuel), C.scope2(kwh, td_loss=td)
     s3 = float(a.get("s3_t", 0))
     lev = A.build_levers(d_l, kwh, s3, float(a.get("diesel_saved_frac", 0.268)), float(a.get("fuel_price", 80)),
-                         float(a.get("solar_kwh", 0)), 3.5, 8.0, float(a.get("ppa_share", 0)), 0.5, float(a.get("supplier_cut", 0.1)))
+                         float(a.get("solar_kwh", 0)), 3.5, 8.0, float(a.get("ppa_share", 0)), 0.5, float(a.get("supplier_cut", 0.1)), td_loss=td)
     path = A.pathway(s1, s2, s3, lev, n=1500)
     m = A.macc(lev)
     return {"baseline": {"scope1": s1, "scope2": s2, "scope3": s3, "diesel_l": d_l, "kwh": kwh}, "macc": m, "pathway": path,
@@ -81,7 +83,7 @@ def report(_):
     p = ROOT / "results/metrics.json"
     if not p.exists(): return {"ready": False}
     cmp_ = pd.read_csv(ROOT / "results/model_comparison.csv")
-    return {"ready": True, "metrics": json.loads(p.read_text()), "comparison": cmp_,
+    return {"ready": True, "metrics": json.loads(p.read_text(encoding="utf-8")), "comparison": cmp_,
             "plots": sorted(f.name for f in (ROOT / "results").glob("*.png"))}
 
 
@@ -92,14 +94,14 @@ def runway(a):
 
 def stress(_):
     p = ROOT / "results/stress.json"
-    return json.loads(p.read_text()) if p.exists() else {"ready": False}
+    return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {"ready": False}
 
 
 def _dispatch_file(key):
     if key not in ("polar", "community"): raise ValueError("profile must be 'polar' or 'community'")
     f = ROOT / "results" / "dispatch" / f"{key}.json"
     if not f.exists(): raise ValueError("Dispatch results are not generated yet. Run: python -m carbon.dispatch_eval")
-    return json.loads(f.read_text())
+    return json.loads(f.read_text(encoding="utf-8"))
 
 
 def dispatch_summary(a):
@@ -108,7 +110,7 @@ def dispatch_summary(a):
     for key in ("polar", "community"):
         f = ROOT / "results" / "dispatch" / f"{key}.json"
         if f.exists():
-            d = json.loads(f.read_text()); d.pop("weeks", None); out[key] = d
+            d = json.loads(f.read_text(encoding="utf-8")); d.pop("weeks", None); out[key] = d
     return {"ready": bool(out), "profiles": out}
 
 

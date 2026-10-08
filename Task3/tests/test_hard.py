@@ -241,7 +241,7 @@ def test_score_matches_hand_computation():
 
 
 def test_shipped_training_artefacts_are_consistent_and_leak_free():
-    m = json.loads((ROOT / "models/metrics.json").read_text())
+    m = json.loads((ROOT / "models/metrics.json").read_text(encoding="utf-8"))
     for k in ("rf", "ndvi_baseline"):
         c = m[k]["confusion_matrix"]
         assert sum(c.values()) == m["holdout_samples"] and c["tp"] + c["fn"] == m["holdout_positive_samples"]

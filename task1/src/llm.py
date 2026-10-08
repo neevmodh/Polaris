@@ -10,7 +10,7 @@ def _env(name, default=""):
     f = Path(__file__).resolve().parent
     for p in (f / ".env", f.parent / ".env"):
         if p.exists():
-            for line in p.read_text().splitlines():
+            for line in p.read_text(encoding="utf-8").splitlines():
                 if line.startswith(name + "="): return line.split("=", 1)[1].strip()
     return default
 

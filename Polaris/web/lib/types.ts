@@ -44,7 +44,7 @@ export type StressRow = { group: "accuracy" | "calibration" | "robustness" | "li
 export type Stress = { ready?: boolean; n_fresh_companies?: number; tests?: StressRow[]; passed?: number; total?: number };
 
 export type CalcInputs = { fuel: Record<string, number>; kwh: number; td_loss: number; spend_lakh: Record<string, number> };
-export type MlEstimate = { s1_t: number; s2_t: number; label: string };
+export type MlEstimate = { s1_t: number; s2_t: number; label: string; inputs?: unknown; fingerprint?: string; calculatedAt?: string | null };
 export type Scenario = { name: string; inputs: CalcInputs; savedAt: string };
 export type Scenarios = { A: Scenario | null; B: Scenario | null };
 
@@ -79,7 +79,7 @@ export type DispatchProfile = {
 export type DispatchSummary = { ready: boolean; profiles: Record<"polar" | "community", DispatchProfile> };
 export type WeekSeries = { start: string; demand: number[]; pv_used: number[]; wind_used: number[]; discharge: number[]; charge: number[]; gen: number[]; soc: number[]; curtailed: number[]; fuel_l: number[]; unmet: number[] };
 export type DispatchWeek = Record<DispatchKey, WeekSeries>;
-export type DispatchSaving = { frac: number; label: string };
+export type DispatchSaving = { frac: number; label: string; profile?: string; savedAt?: string };
 
 /* Task 1 (Atmos): regional greenhouse-gas histories and forecasts. */
 export type AirCity = { name: string; station: string; latitude: number; longitude: number; unit: string; origin: string; scope: string; grid_bounds: number[]; last: string; source_rows: number; citation: string; license: string; url: string };

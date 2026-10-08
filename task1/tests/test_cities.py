@@ -19,7 +19,7 @@ def test_city_extraction_matches_raw_native_cell(code):
     assert west<=info['longitude']<=east and south<=info['latitude']<=north
     assert east-west==3 and north-south==2
     for row in frame.iloc[[0,len(frame)//2,-1]].itertuples():
-        raw=json.loads((ROOT/'data/cities/raw'/f'{row.date.date()}.json').read_text())
+        raw=json.loads((ROOT/'data/cities/raw'/f'{row.date.date()}.json').read_text(encoding="utf-8"))
         native=raw['cities'][code]
         assert raw['url'].endswith(f'{row.date.date()}.nc')
         assert len(native['values_3hourly'])==8

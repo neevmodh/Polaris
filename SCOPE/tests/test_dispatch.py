@@ -145,7 +145,7 @@ def test_window_too_close_to_the_end_of_data_is_refused(worlds, forecaster):
 def test_published_results_are_internally_consistent(key):
     f = ROOT / "results/dispatch" / f"{key}.json"
     if not f.exists(): pytest.skip("profile not evaluated yet")
-    d = json.loads(f.read_text()); sc = d["scenarios"]
+    d = json.loads(f.read_text(encoding="utf-8")); sc = d["scenarios"]
     assert sc["A"]["solves"] == 0 and sc["C"]["solves"] > 300
     assert sc["A"]["demand_kwh"] == pytest.approx(sc["B"]["demand_kwh"]) == pytest.approx(sc["C"]["demand_kwh"])           # same load, same weather, same hardware
     for k in ("A", "B", "C"):

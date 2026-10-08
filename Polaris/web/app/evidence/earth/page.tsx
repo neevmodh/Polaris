@@ -1,21 +1,37 @@
 "use client";
 import Link from "next/link";
+import { useState } from "react";
 import { useGet, usePost } from "@/lib/hooks";
 import type { SatAnalysis, SatMeta } from "@/lib/sat";
 import { nf0 } from "@/lib/format";
 import { HBars, MetricBars } from "@/components/charts";
 import { PageHead, Panel, Term } from "@/components/ui";
 
+/** Reference values come from the Task 3 validation run, one set per water method. A figure is compared with the
+ *  reference for the method that actually produced it, never with the other method's. */
+const LAKE_REF: Record<string, { water: number; algae: number }> = {
+  "Pretrained U-Net": { water: 703.17, algae: 319.41 },
+  "Spectral open-water mask": { water: 1015.02, algae: 413.64 },
+};
+const FOREST_REF = { loss: 245.43, regions: 84, clear: 99.79 };
+const close = (a: number | null | undefined, b: number) => a != null && Math.abs(a - b) < 0.006;
+
+function Failure({ what, message, retry }: { what: string; message: string; retry: () => void }) {
+  return <div className="alert err" role="alert"><span>{what} could not be computed: {message}</span><button type="button" className="btn ghost" onClick={retry}>Retry</button></div>;
+}
+
 export default function EarthEvidence() {
+  const [tries, setTries] = useState({ forest: 0, lake: 0 });
   const { data: meta, error } = useGet<SatMeta>("/api/sat/meta");
-  const forest = usePost<SatAnalysis>("/api/sat/analyze", { kind: "forest", case: "forest" }, { debounce: 0 });
-  const lake = usePost<SatAnalysis>("/api/sat/analyze", { kind: "lake", case: "lake", water: "Pretrained U-Net" }, { debounce: 0 });
+  const forest = usePost<SatAnalysis>("/api/sat/analyze", { kind: "forest", case: "forest", retry: tries.forest }, { debounce: 0 });
+  const lake = usePost<SatAnalysis>("/api/sat/analyze", { kind: "lake", case: "lake", water: "Pretrained U-Net", retry: tries.lake }, { debounce: 0 });
   const m = meta?.metrics, c = m?.rf.confusion_matrix, b = m?.ndvi_baseline.confusion_matrix;
   const fs = forest.data?.summary, ls = lake.data?.summary;
+  const lakeMethod = lake.data?.method ?? null, lref = lakeMethod ? LAKE_REF[lakeMethod] : undefined;
   return (
     <>
       <PageHead eyebrow="Earth models" title="How the satellite models were tested">
-        The forest model is a random forest trained on one Sentinel-2 pair and scored on a strip it never saw, against a plain NDVI rule. The lake analysis uses a pretrained U-Net for water extent only.
+        The forest model is a random forest trained on one Sentinel-2 pair and scored on a strip it never saw, against a plain NDVI rule. The lake analysis segments open water, with a pretrained U-Net where it is installed and a spectral mask where it is not.
       </PageHead>
       {error && <div className="alert err">{error}</div>}
       {m && c && b && (
@@ -39,14 +55,17 @@ export default function EarthEvidence() {
             <p className="note">Training used {nf0.format(m.trained_samples)} pixels from the western 70% ({nf0.format(m.training_positive_samples)} with loss); a six-column gap separates it from the eastern holdout. Labels: {m.reference}. Label years {m.label_interval}.</p>
           </Panel>
           <Panel title="Polaris recomputes the published case-study numbers" tick="var(--s3)">
-            <div className="scroll"><table className="t"><thead><tr><th>Case</th><th>Quantity</th><th className="r">Polaris now</th></tr></thead>
+            {forest.error && <Failure what="The forest case" message={forest.error} retry={() => setTries((t) => ({ ...t, forest: t.forest + 1 }))} />}
+            {lake.error && <Failure what="The lake case" message={lake.error} retry={() => setTries((t) => ({ ...t, lake: t.lake + 1 }))} />}
+            {lake.data?.fallback && <div className="alert" role="status"><span>{lake.data.fallback} The lake figures below are for the <b>{lakeMethod}</b> and are compared with that method&apos;s own reference.</span></div>}
+            <div className="scroll"><table className="t"><thead><tr><th>Case</th><th>Quantity</th><th className="r">Polaris now</th><th className="r">Reference</th><th className="r">Check</th></tr></thead>
               <tbody>
-                <tr><td>Rondônia</td><td>candidate forest loss</td><td className="r">{fs?.candidate_loss_area_ha?.toFixed(2) ?? "…"} ha in {fs?.alert_regions ?? "…"} regions</td></tr>
-                <tr><td>Rondônia</td><td>clear paired coverage</td><td className="r">{fs?.observed_pair_pct ?? "…"}%</td></tr>
-                <tr><td>Loktak (U-Net)</td><td>comparable open water</td><td className="r">{ls?.common_water_ha?.toFixed(2) ?? "…"} ha</td></tr>
-                <tr><td>Loktak (U-Net)</td><td>algae-proxy increase</td><td className="r">{ls?.algae_proxy_increase_ha?.toFixed(2) ?? "…"} ha</td></tr>
+                <tr><td>Rondônia</td><td>candidate forest loss</td><td className="r">{forest.loading ? "…" : fs?.candidate_loss_area_ha != null ? `${fs.candidate_loss_area_ha.toFixed(2)} ha in ${fs.alert_regions} regions` : "unavailable"}</td><td className="r">{FOREST_REF.loss} ha, {FOREST_REF.regions} regions</td><td className="r">{fs ? (close(fs.candidate_loss_area_ha, FOREST_REF.loss) && fs.alert_regions === FOREST_REF.regions ? "matches" : "differs") : "—"}</td></tr>
+                <tr><td>Rondônia</td><td>clear paired coverage</td><td className="r">{forest.loading ? "…" : fs?.observed_pair_pct != null ? `${fs.observed_pair_pct}%` : "unavailable"}</td><td className="r">{FOREST_REF.clear}%</td><td className="r">{fs ? (close(fs.observed_pair_pct, FOREST_REF.clear) ? "matches" : "differs") : "—"}</td></tr>
+                <tr><td>Loktak ({lakeMethod ?? "…"})</td><td>comparable open water</td><td className="r">{lake.loading ? "…" : ls?.common_water_ha != null ? `${ls.common_water_ha.toFixed(2)} ha` : "unavailable"}</td><td className="r">{lref ? `${lref.water} ha` : "—"}</td><td className="r">{ls && lref ? (close(ls.common_water_ha, lref.water) ? "matches" : "differs") : "—"}</td></tr>
+                <tr><td>Loktak ({lakeMethod ?? "…"})</td><td>algae-proxy increase</td><td className="r">{lake.loading ? "…" : ls?.algae_proxy_increase_ha != null ? `${ls.algae_proxy_increase_ha.toFixed(2)} ha` : "unavailable"}</td><td className="r">{lref ? `${lref.algae} ha` : "—"}</td><td className="r">{ls && lref ? (close(ls.algae_proxy_increase_ha, lref.algae) ? "matches" : "differs") : "—"}</td></tr>
               </tbody></table></div>
-            <p className="note">These match the task&apos;s own validation file exactly (245.43 ha, 703.17 ha, 319.41 ha, 99.79% and 93.0% clear). An automated test in this project asserts it, so a change that breaks the bridge is caught.</p>
+            <p className="note">Each row is compared with the reference for the method that produced it. A row says &quot;matches&quot; only after its computation succeeds and agrees to two decimals; otherwise it says &quot;differs&quot; or shows nothing. An automated test asserts the same values, so a change that breaks the bridge is caught.</p>
           </Panel>
           <Panel title="Limits that travel with every satellite number" tick="var(--s1)">
             <ul className="ledger no">

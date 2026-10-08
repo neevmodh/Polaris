@@ -5,7 +5,7 @@ import pandas as pd
 from .data import ROOT
 
 def city_catalog():
-    return json.loads((ROOT/'data/cities/manifest.json').read_text())
+    return json.loads((ROOT/'data/cities/manifest.json').read_text(encoding="utf-8"))
 
 def read_city(code):
     info=next(e for e in city_catalog() if e['station']==code)

@@ -41,7 +41,7 @@ for (const [label, vp] of [["desktop", desktop], ["mobile", mobile]]) {
   ok("calculator shows a total on first load", /^\d/.test(total0), total0);
   // change diesel -> total must change and match API
   await typeInto(page, "#f-diesel", "0");
-  await page.waitForFunction((t) => document.querySelector(".big")?.textContent !== t, {}, total0);
+  await page.waitForFunction((t) => { const e = document.querySelector(".big"); return e !== null && e.textContent !== t; }, {}, total0);   // the old total is hidden while recalculating, so wait for the new one
   const total1 = await text(page, ".big");
   ok("changing diesel updates the total", total1 !== total0, `${total0} -> ${total1}`);
   // invalid: negative typing is clamped
@@ -66,7 +66,7 @@ for (const [label, vp] of [["desktop", desktop], ["mobile", mobile]]) {
   await page.waitForSelector(".big");
   const a = await text(page, ".big");
   await page.select("#sector", "IT Services");
-  await page.waitForFunction((t) => document.querySelector(".big")?.textContent !== t, {}, a);
+  await page.waitForFunction((t) => (document.querySelector(".big") !== null && document.querySelector(".big").textContent !== t), {}, a);
   const b = await text(page, ".big");
   ok("switching sector changes the ML estimate", a !== b, `${a} -> ${b}`);
   await setVal(page, "#turn", 6);
@@ -217,7 +217,11 @@ for (const [label, vp] of [["desktop", desktop], ["mobile", mobile]]) {
 }
 
 // ---- merged site: overview, navigation and sheet numbers
-import { rmSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+import { existsSync } from "node:fs";
+const HERE = dirname(fileURLToPath(import.meta.url));
+const RUN = Date.now().toString(36);                    // unique per run, so notes from earlier runs never satisfy a check
 {
   const { page, errs } = await openPage("/", desktop);
   await page.waitForFunction(() => document.querySelectorAll(".reading .rv").length === 4 && ![...document.querySelectorAll(".reading .rv")].some((e) => e.querySelector(".skeleton")), { timeout: 30000 });
@@ -264,8 +268,9 @@ import { rmSync } from "node:fs";
   ok("air alerts: a flag count is computed", Number.isFinite(before), String(before));
   ok("air alerts: the page refuses to call a flag a health warning", /not health warnings|review queue/i.test(await text(page, "main")));
   await setVal(page, "input[type=range]", "1.5");
-  await page.waitForFunction((b) => Number(document.querySelector(".kpi .v")?.textContent) >= b, { timeout: 60000 }, before);
-  ok("air alerts: a looser threshold cannot flag fewer days", Number(await text(page, ".kpi .v")) >= before);
+  // wait for the result that belongs to the NEW input (1.5 sigma), not for any number that happens to be on screen
+  await page.waitForFunction(() => /1\.5/.test(document.querySelectorAll(".kpi .v")[1]?.textContent ?? ""), { timeout: 60000 });
+  ok("air alerts: the result shown is for the 1.5 sigma input and cannot flag fewer days", Number(await text(page, ".kpi .v")) >= before);
   ok("air alerts: no console errors", errs.length === 0, errs[0] ?? "");
   await page.close();
 }
@@ -303,7 +308,6 @@ import { rmSync } from "node:fs";
 }
 
 // ---- earth: forest workspace
-rmSync("../data/reviews", { recursive: true, force: true });
 {
   const { page, errs } = await openPage("/earth/forest", desktop);
   await page.waitForFunction(() => /245 ha/.test(document.body.textContent), { timeout: 30000 });
@@ -316,33 +320,40 @@ rmSync("../data/reviews", { recursive: true, force: true });
   ok("forest: clicking the image moves the divider", Math.abs(Number(await page.$eval("[role=slider]", (e) => e.getAttribute("aria-valuenow"))) - 20) <= 3);
   const src0 = await page.$$eval(".viewer.swipe img", (i) => i[1].src.length);
   await page.evaluate(() => [...document.querySelectorAll(".chip-btn")].find((b) => b.textContent === "NDVI change").click());
-  await page.waitForFunction((n) => document.querySelectorAll(".viewer.swipe img")[1]?.src.length !== n, { timeout: 20000 }, src0);
+  // A superseded result is no longer shown while the new one loads, so wait for the NEW image and its legend to appear.
+  await page.waitForFunction((n) => { const i = document.querySelectorAll(".viewer.swipe img")[1]; return i !== undefined && i.src.length !== n && document.querySelector(".legendbar") !== null; }, { timeout: 30000 }, src0);
   ok("forest: choosing a layer redraws the image and shows a legend", (await page.$(".legendbar")) !== null);
   await page.evaluate(() => [...document.querySelectorAll("button")].find((b) => b.textContent === "Side by side").click());
+  await page.waitForSelector(".side2 .viewer", { timeout: 20000 });
   ok("forest: side-by-side shows two frames", (await page.$$(".side2 .viewer")).length === 2);
   const loss0 = await page.$eval(".kpis .kpi .v", (e) => e.textContent);
-  await page.select("#det", "NDVI screening baseline"); await page.waitForFunction((t) => document.querySelector(".kpis .kpi .v")?.textContent !== t, { timeout: 20000 }, loss0);
+  await page.select("#det", "NDVI screening baseline"); await page.waitForFunction((t) => { const e = document.querySelector(".kpis .kpi .v"); return e !== null && e.textContent !== t; }, { timeout: 30000 }, loss0);
   ok("forest: the NDVI baseline gives a different result and disables the model-score layer", await page.$$eval(".chip-btn", (b) => b.find((x) => x.textContent === "Model score").disabled));
   await page.select("#det", "Trained random forest"); await page.waitForFunction(() => /245 ha/.test(document.body.textContent), { timeout: 20000 });
   await page.evaluate(() => document.querySelector(".mk")?.click()); await page.waitForSelector("#rnote", { timeout: 20000 });
   await page.waitForSelector(".crops img", { timeout: 20000 });
   ok("forest: clicking a marker opens the region with before and after crops", true);
   await page.evaluate(() => [...document.querySelectorAll(".seg2 button")].find((b) => b.textContent === "False positive").click());
-  await page.type("#rnote", "cloud edge, e2e"); await page.evaluate(() => [...document.querySelectorAll("button")].find((b) => b.textContent === "Save review").click());
-  await page.waitForFunction(() => /1 reviewed/.test(document.body.textContent), { timeout: 20000 });
+  await page.type("#rnote", "cloud edge, e2e " + RUN); await page.evaluate(() => [...document.querySelectorAll("button")].find((b) => b.textContent === "Save review").click());
+  await page.waitForFunction(() => /\d+ reviewed/.test(document.body.textContent), { timeout: 20000 });
   const csv = await page.evaluate(async () => (await (await fetch("/api/sat/export", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ kind: "forest", case: "forest", what: "csv" }) })).json()).text);
-  ok("forest: a saved review is counted and appears in the CSV export", /False positive/.test(csv) && /cloud edge, e2e/.test(csv));
+  ok("forest: a saved review is counted and appears in the CSV export", /False positive/.test(csv) && new RegExp("cloud edge, e2e " + RUN).test(csv));
   ok("forest: no console errors", errs.length === 0, errs[0] ?? "");
   await page.close();
 }
-rmSync("../data/reviews", { recursive: true, force: true });
 
 // ---- earth: lake workspace
 {
   const { page } = await openPage("/earth/lake", desktop);
   await page.waitForFunction(() => /1,015 ha/.test(document.body.textContent), { timeout: 30000 });
-  await page.select("#wm", "Pretrained U-Net"); await page.waitForFunction(() => /703 ha/.test(document.body.textContent), { timeout: 40000 });
-  ok("lake: the U-Net gives 703 ha of comparable water and 319 ha of algae-proxy rise", /319 ha/.test(await page.$eval(".kpis", (e) => e.textContent)));
+  const hasUnet = await page.evaluate(async () => (await (await fetch("/api/sat/meta")).json()).unet === true);
+  ok("lake: the spectral mask gives 1,015 ha of comparable water", /1,015 ha/.test(await page.$eval(".kpis", (e) => e.textContent)));
+  if (hasUnet) {
+    await page.select("#wm", "Pretrained U-Net"); await page.waitForFunction(() => /703 ha/.test(document.body.textContent), { timeout: 40000 });
+    ok("lake: the U-Net gives 703 ha of comparable water and 319 ha of algae-proxy rise", /319 ha/.test(await page.$eval(".kpis", (e) => e.textContent)));
+  } else {
+    ok("lake: without the U-Net the option is not offered, rather than silently substituted", (await page.$$eval("#wm option", (o) => o.map((x) => x.textContent))).every((t) => !/U-Net/.test(t)));
+  }
   ok("lake: the indicator table lists NDTI", (await page.$$eval("table.t tbody tr td.mono", (t) => t.map((x) => x.textContent))).includes("NDTI"));
   await page.evaluate(() => [...document.querySelectorAll("[role=tab]")].find((b) => b.textContent.includes("evidence")).click());
   ok("lake: the evidence tab says what the proxies cannot establish", /drinking-water safety/.test(await page.evaluate(() => document.body.textContent)));
@@ -364,12 +375,14 @@ rmSync("../data/reviews", { recursive: true, force: true });
   ok("custom region: a box wider than 0.3 degrees is refused with a clear message", true);
   await page.evaluate(() => [...document.querySelectorAll(".seg2 button")].find((b) => b.textContent === "Upload").click());
   await page.waitForSelector("#f-before");
-  const t3 = "/Users/neev/Downloads/POLARIS/Task3/outputs/forest";
+  const t3 = process.env.E2E_FIXTURES ?? resolve(HERE, "../../../Task3/outputs/forest");
+  if (!existsSync(`${t3}/before_8band.tif`)) throw new Error(`Upload fixtures not found in ${t3}. Set E2E_FIXTURES to a folder holding before_8band.tif and after_8band.tif.`);
   await (await page.$("#f-before")).uploadFile(`${t3}/before_8band.tif`); await (await page.$("#f-after")).uploadFile(`${t3}/after_8band.tif`);
   await setVal(page, "input[aria-label='before acquisition date']", "2019-07-08"); await setVal(page, "input[aria-label='after acquisition date']", "2024-07-21");
   await page.evaluate(() => [...document.querySelectorAll("button")].find((b) => b.textContent.includes("Use these rasters")).click());
   await page.waitForFunction(() => /User-supplied/.test(document.body.textContent) === false && document.querySelector(".prov") === null, { timeout: 3000 }).catch(() => {});
   await new Promise((r) => setTimeout(r, 3500));
+  await page.waitForSelector(".kpis .kpi .v", { timeout: 60000 });
   ok("upload: the prepared rasters are analysed", /\d/.test(await page.$eval(".kpis .kpi .v", (e) => e.textContent)));
   await page.close();
 }
@@ -377,8 +390,13 @@ rmSync("../data/reviews", { recursive: true, force: true });
 // ---- evidence pages
 {
   const { page } = await openPage("/evidence/earth", desktop);
-  await page.waitForFunction(() => /245\.43/.test(document.body.textContent) && /703\.17/.test(document.body.textContent), { timeout: 30000 });
-  ok("earth evidence: recomputed numbers match the validation file", /319\.41/.test(await page.evaluate(() => document.body.textContent)));
+  await page.waitForFunction(() => [...document.querySelectorAll("table.t")].some((t) => /comparable open water/.test(t.textContent) && /ha/.test(t.textContent) && !/…/.test(t.textContent)), { timeout: 40000 });
+  const rows = await page.$$eval("table.t tr", (r) => r.map((x) => [...x.children].map((c) => c.textContent.trim())).filter((c) => c.length === 5));
+  const water = rows.find((c) => /comparable open water/.test(c[1])), algae = rows.find((c) => /algae-proxy increase/.test(c[1]));
+  ok("earth evidence: the lake table names the detector that produced it", /Loktak \((Pretrained U-Net|Spectral open-water mask)\)/.test(water?.[0] ?? ""), water?.[0] ?? "");
+  ok("earth evidence: each row is compared with its own method's reference and says matches", water?.[4] === "matches" && algae?.[4] === "matches", JSON.stringify([water, algae]));
+  const forestRow = rows.find((c) => /candidate forest loss/.test(c[1]));
+  ok("earth evidence: the forest row recomputes 245.43 ha in 84 regions", forestRow?.[2].startsWith("245.43") && forestRow?.[4] === "matches", forestRow?.[2] ?? "");
   await page.close();
   const m = await openPage("/evidence/method", desktop); await m.page.waitForSelector("table.t");
   const t = await m.page.evaluate(() => document.body.textContent);

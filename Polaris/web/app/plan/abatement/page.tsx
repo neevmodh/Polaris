@@ -8,9 +8,10 @@ import { ErrorNote, Num, PageHead, Panel, Slider, Term } from "@/components/ui";
 import { MaccChart, PathwayChart } from "@/components/charts";
 
 export default function Abatement() {
-  const { inputs, ml } = useStore();
+  const { inputs, ml, dispatch } = useStore();
   const [source, setSource] = useState<"calc" | "ml">("calc");
-  const [saved, setSaved] = useState(0.268);
+  const [manualSaving, setSaved] = useState<number | null>(null);
+  const saved = manualSaving ?? dispatch?.frac ?? 0.268;
   const [price, setPrice] = useState(80);
   const [solar, setSolar] = useState(150000);
   const [ppa, setPpa] = useState(0.2);
@@ -25,10 +26,10 @@ export default function Abatement() {
   const s3 = calc.data?.point.scope3 ?? 0;
 
   const body = useMemo(() => ({
-    ...(useMl ? { from_ml: { s1_t: ml!.s1_t, s2_t: ml!.s2_t } } : { diesel_l: inputs.fuel.diesel_l ?? 0, kwh: inputs.kwh }),
+    ...(useMl ? { from_ml: { s1_t: ml!.s1_t, s2_t: ml!.s2_t } } : { ...inputs.fuel, kwh: inputs.kwh }),
     td_loss: inputs.td_loss, s3_t: s3, diesel_saved_frac: saved, fuel_price: price, solar_kwh: solar, ppa_share: ppa, supplier_cut: supplier,
   }), [useMl, ml, inputs, s3, saved, price, solar, ppa, supplier]);
-  const { data, error, loading } = usePost<AbateResult>("/api/abatement", body, { enabled: !calc.loading || calc.data != null });
+  const { data, error, loading } = usePost<AbateResult>("/api/abatement", body, { enabled: !!calc.data && !calc.loading && !calc.error });
 
   const b = data?.baseline;
   const baseTotal = b ? b.scope1 + b.scope2 + b.scope3 : 0;
@@ -60,8 +61,8 @@ export default function Abatement() {
 
         <div className="grid2 lev">
           <Panel title="Levers" tick="var(--s3)">
-            <Slider label="Polaris diesel saving" value={saved} min={0} max={0.6} step={0.005} onChange={setSaved} format={(v) => pct(v, 1)} />
-            <p className="note" style={{ marginTop: -6 }}>26.8% is illustrative until the Polaris simulation is linked. It is typed in, not computed.</p>
+            <Slider label="Polaris diesel saving" value={saved} min={0} max={1} step={0.005} onChange={setSaved} format={(v) => pct(v, 1)} />
+            <p className="note" style={{ marginTop: -6 }}>{manualSaving !== null ? "Manual override of the diesel saving." : dispatch ? `Saved dispatch simulation: ${dispatch.label}.` : "26.8% is an illustrative assumption. Save a computed result on the dispatch sheet to replace it."}</p>
             <Num label="Diesel price" unit="₹ / L" value={price} onChange={setPrice} max={500} />
             <Num label="New on-site solar" unit="kWh / yr" value={solar} onChange={setSolar} />
             <Slider label="Green PPA share of remaining grid kWh" value={ppa} min={0} max={1} step={0.01} onChange={setPpa} format={(v) => pct(v)} />

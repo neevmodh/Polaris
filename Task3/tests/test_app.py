@@ -23,7 +23,7 @@ def test_real_case_studies_and_ui_controls():
 
 
 def test_training_evidence_is_present_and_held_out():
-    m = json.loads((ROOT / "models" / "metrics.json").read_text())
+    m = json.loads((ROOT / "models" / "metrics.json").read_text(encoding="utf-8"))
     assert m["holdout_positive_samples"] >= 20
     assert m["rf"]["confusion_matrix"]["tp"] + m["rf"]["confusion_matrix"]["fn"] == m["holdout_positive_samples"]
     assert "reference" in m and "spatial_split" in m

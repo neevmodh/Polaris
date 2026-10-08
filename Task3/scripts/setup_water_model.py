@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if __name__ == "__main__":
     repo = ROOT / "references" / "lake-detection-water-quality"
     filename = "best_water_segmentation_model_unet.pth"
-    pointer = (repo / "models" / filename).read_text()
+    pointer = (repo / "models" / filename).read_text(encoding="utf-8")
     checksum = next(s.split(":", 1)[1] for s in pointer.splitlines() if s.startswith("oid sha256:"))
     size = int(next(s.split()[1] for s in pointer.splitlines() if s.startswith("size ")))
     import subprocess

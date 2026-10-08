@@ -14,6 +14,8 @@ const TASK3 = process.env.TASK3_DIR ?? path.resolve(POLARIS, "..", "Task3");
 const TASK1 = process.env.TASK1_DIR ?? path.resolve(POLARIS, "..", "task1");
 const NETZERO = process.env.NETZERO_DIR ?? path.resolve(POLARIS, "..", "netzero-ai");
 const TIMEOUT_MS = 120_000;
+const READY_MS = Number(process.env.POLARIS_READY_MS ?? 60_000);   // a worker that never says ready must not hang requests
+const MAX_PENDING = 24;                                             // per engine; beyond this we refuse instead of queueing without limit
 
 type Spec = { cmd: string; args: string[]; cwd: string; env: Record<string, string> };
 const SPECS: Record<string, Spec> = {
@@ -34,12 +36,12 @@ const SPECS: Record<string, Spec> = {
 export type EngineName = keyof typeof SPECS;
 
 type Pending = { resolve: (v: unknown) => void; reject: (e: Error) => void; timer: NodeJS.Timeout };
-type State = { proc?: ChildProcessWithoutNullStreams; ready?: Promise<void>; pending: Map<number, Pending>; seq: number };
+type State = { proc?: ChildProcessWithoutNullStreams; ready?: Promise<void>; pending: Map<number, Pending>; seq: number; inflight: Map<string, Promise<unknown>> };
 const g = globalThis as unknown as { __polarisEngines?: Record<string, State> };
 const states: Record<string, State> = (g.__polarisEngines ??= {});
 
 export class EngineError extends Error {
-  constructor(message: string, public kind: "input" | "internal" | "engine") { super(message); }
+  constructor(message: string, public kind: "input" | "internal" | "engine" | "busy") { super(message); }
 }
 
 function start(name: string, st: State): Promise<void> {
@@ -58,7 +60,7 @@ function start(name: string, st: State): Promise<void> {
     if (!p) return;
     clearTimeout(p.timer); st.pending.delete(msg.id!);
     if (msg.ok) p.resolve(msg.result);
-    else p.reject(new EngineError(msg.error ?? "engine error", msg.kind === "input" ? "input" : "internal"));
+    else p.reject(new EngineError(msg.error ?? "engine error", msg.kind === "input" ? "input" : msg.kind === "busy" ? "busy" : "internal"));
   });
   proc.on("error", (e) => onFail(new EngineError(`Cannot start the ${name} engine at ${spec.cmd}: ${e.message}`, "engine")));
   proc.on("exit", (code) => {
@@ -69,16 +71,38 @@ function start(name: string, st: State): Promise<void> {
   return ready;
 }
 
+function reset(st: State) { const p = st.proc; st.proc = undefined; st.ready = undefined; try { p?.kill("SIGKILL"); } catch { /* already gone */ } }
+
 export async function engine<T = unknown>(name: EngineName, cmd: string, args: unknown = {}): Promise<T> {
-  const st = (states[name] ??= { pending: new Map(), seq: 0 });
-  if (!st.proc) st.ready = start(name, st);
-  await st.ready;
-  const id = ++st.seq;
-  return new Promise<T>((resolve, reject) => {
-    const timer = setTimeout(() => { st.pending.delete(id); reject(new EngineError("Engine timed out", "engine")); }, TIMEOUT_MS);
-    st.pending.set(id, { resolve: resolve as (v: unknown) => void, reject, timer });
-    st.proc!.stdin.write(JSON.stringify({ id, cmd, args }) + "\n");
-  });
+  const st = (states[name] ??= { pending: new Map(), seq: 0, inflight: new Map() });
+  // Identical requests already running share one answer, so a burst of the same call does one unit of work.
+  const dedupe = JSON.stringify([cmd, args]);
+  const running = st.inflight.get(dedupe);
+  if (running) return running as Promise<T>;
+  if (st.pending.size >= MAX_PENDING) throw new EngineError(`The ${name} engine is busy. Try again in a moment.`, "busy");
+
+  const work = (async () => {
+    if (!st.proc) st.ready = start(name, st);
+    const ready = st.ready!;
+    let t: NodeJS.Timeout | undefined;
+    try {
+      await Promise.race([ready, new Promise<never>((_, rej) => { t = setTimeout(() => rej(new EngineError(`The ${name} engine did not become ready within ${Math.round(READY_MS / 1000)} s`, "engine")), READY_MS); })]);
+    } catch (e) { reset(st); throw e; }          // an unhealthy start is torn down so the next call gets a fresh one
+    finally { clearTimeout(t); }
+    const id = ++st.seq;
+    return new Promise<T>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        st.pending.delete(id);
+        reject(new EngineError("Engine timed out", "engine"));
+        // The Python side cannot be interrupted mid-call. If nothing else is waiting, restart it so the abandoned work stops.
+        if (st.pending.size === 0) reset(st);
+      }, TIMEOUT_MS);
+      st.pending.set(id, { resolve: resolve as (v: unknown) => void, reject, timer });
+      st.proc!.stdin.write(JSON.stringify({ id, cmd, args }) + "\n");
+    });
+  })();
+  st.inflight.set(dedupe, work);
+  try { return await work; } finally { st.inflight.delete(dedupe); }
 }
 
 export async function handle(name: EngineName, cmd: string, req?: Request, extra?: (body: unknown) => unknown): Promise<Response> {
@@ -89,7 +113,7 @@ export async function handle(name: EngineName, cmd: string, req?: Request, extra
     }
     return Response.json(await engine(name, cmd, extra ? extra(args) : args));
   } catch (e) {
-    if (e instanceof EngineError) return Response.json({ error: e.message }, { status: e.kind === "input" ? 422 : 502 });
+    if (e instanceof EngineError) return Response.json({ error: e.message }, { status: e.kind === "input" ? 422 : e.kind === "busy" ? 503 : 502 });
     return Response.json({ error: "Unexpected server error" }, { status: 500 });
   }
 }

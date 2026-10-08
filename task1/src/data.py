@@ -10,12 +10,12 @@ GASES = {"co2": {"name": "Carbon dioxide", "label": "CO₂", "unit": "ppm"},
          "ch4": {"name": "Methane", "label": "CH₄", "unit": "ppb"}}
 
 def manifest():
-    return json.loads((ROOT / "data/manifest.json").read_text())
+    return json.loads((ROOT / "data/manifest.json").read_text(encoding="utf-8"))
 
 def read_noaa(gas, station):
     entry = next(e for e in manifest() if e["gas"] == gas and e["station"] == station)
     path = ROOT / entry["file"]
-    raw = path.read_text()
+    raw = path.read_text(encoding="utf-8")
     metadata = {}
     for line in raw.splitlines():
         if line.startswith("# ") and ":" in line:

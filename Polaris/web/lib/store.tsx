@@ -10,7 +10,7 @@ export const EMPTY: CalcInputs = { fuel: { diesel_l: 0, petrol_l: 0, lpg_kg: 0, 
 
 /** Tiny external store: inputs and saved scenarios persist in localStorage, the ML estimate lives for the session.
  *  useSyncExternalStore keeps server and first client render identical, then switches to saved values. */
-const KEY = "scope.inputs.v1", SKEY = "scope.scenarios.v1";
+const KEY = "scope.inputs.v1", SKEY = "scope.scenarios.v1", DKEY = "scope.dispatch.v1";
 type Snap = { inputs: CalcInputs; ml: MlEstimate | null; scenarios: Scenarios; dispatch: DispatchSaving | null };
 let snap: Snap | null = null;
 const listeners = new Set<() => void>();
@@ -26,13 +26,16 @@ function read(): Snap {
   let inputs = EXAMPLE, scenarios: Scenarios = { A: null, B: null };
   try { const s = localStorage.getItem(KEY); if (s) inputs = sane(JSON.parse(s)); } catch {}
   try { const s = localStorage.getItem(SKEY); if (s) { const j = JSON.parse(s); scenarios = { A: j.A ? { ...j.A, inputs: sane(j.A.inputs) } : null, B: j.B ? { ...j.B, inputs: sane(j.B.inputs) } : null }; } } catch {}
-  return (snap = { inputs, ml: null, scenarios, dispatch: null });
+  let dispatch: DispatchSaving | null = null;
+  try { const raw = localStorage.getItem(DKEY); const d = raw ? JSON.parse(raw) : null; if (d && Number.isFinite(d.frac) && d.frac >= 0 && d.frac <= 1 && typeof d.label === "string") dispatch = d; } catch {}
+  return (snap = { inputs, ml: null, scenarios, dispatch });
 }
 function write(next: Partial<Snap>) {
   snap = { ...read(), ...next };
   try {
     if (next.inputs) localStorage.setItem(KEY, JSON.stringify(next.inputs));
     if (next.scenarios) localStorage.setItem(SKEY, JSON.stringify(next.scenarios));
+    if ("dispatch" in next) { if (next.dispatch) localStorage.setItem(DKEY, JSON.stringify(next.dispatch)); else localStorage.removeItem(DKEY); }
   } catch {}
   listeners.forEach((l) => l());
 }

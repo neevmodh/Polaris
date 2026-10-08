@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { usePost } from "@/lib/hooks";
+import { useStore } from "@/lib/store";
 import type { RunwayResult } from "@/lib/types";
 import { fmtT, nf0, pct } from "@/lib/format";
 import { ErrorNote, Num, PageHead, Panel, Slider, Term } from "@/components/ui";
@@ -13,10 +14,13 @@ export default function Runway() {
   const [daily, setDaily] = useState(1000);
   const [day, setDay] = useState(25);
   const [cv, setCv] = useState(0.15);
-  const [saving, setSaving] = useState(0.268);
+  const { dispatch } = useStore();
+  const [manualSaving, setSaving] = useState<number | null>(null);
+  const saving = manualSaving ?? dispatch?.frac ?? 0.268;
   const [delay, setDelay] = useState(0);
   const body = useMemo(() => ({ stock_l: stock, daily_l: daily, delivery_day: day, cv, saving_frac: saving, delay_days: delay }), [stock, daily, day, cv, saving, delay]);
   const { data: r, error, loading } = usePost<RunwayResult>("/api/runway", body, { enabled: stock >= 1 && daily >= 0.1 && day >= 1 });
+  const validation = stock < 1 ? "Usable fuel must be at least 1 litre." : daily < 0.1 ? "Daily consumption must be at least 0.1 L/day; zero consumption has no finite runway in this model." : day < 1 ? "Delivery day must be at least 1." : null;
   const when = day + delay;
 
   const verdict = r && (r.p_ok_with_delay.with_saving >= r.target_p ? "good" : r.p_ok_with_delay.with_saving >= 0.5 ? "warn" : "bad");
@@ -37,15 +41,15 @@ export default function Runway() {
             <Slider label="Day-to-day variability" value={cv} min={0} max={0.5} step={0.01} onChange={setCv} format={(v) => pct(v)} />
           </Panel>
           <Panel title="Actions" tick="var(--s3)">
-            <Slider label="Polaris saving (load shifted to renewable hours)" value={saving} min={0} max={0.6} step={0.005} onChange={setSaving} format={(v) => pct(v, 1)} />
-            <p className="note" style={{ marginTop: -6 }}>26.8% is the proposal&apos;s illustrative figure. Replace it with the simulated saving when the Polaris dispatch run is linked.</p>
+            <Slider label="Polaris saving (load shifted to renewable hours)" value={saving} min={0} max={1} step={0.005} onChange={setSaving} format={(v) => pct(v, 1)} />
+            <p className="note" style={{ marginTop: -6 }}>{manualSaving !== null ? "Manual override of the diesel saving." : dispatch ? `Saved dispatch simulation: ${dispatch.label}.` : "26.8% is an illustrative assumption. Save a computed dispatch result to replace it."}</p>
             <Slider label="Delivery arrives late by" value={delay} min={0} max={14} step={1} onChange={setDelay} format={(v) => `${v} day${v === 1 ? "" : "s"}`} />
           </Panel>
           <p className="note">{r?.assumptions ?? "Illustrative stochastic model, not a weather forecast"}. The estimate beyond a week would need a real weather source.</p>
         </div>
 
         <div className={`stack sticky fade ${loading ? "busy" : ""}`} style={{ animationDelay: ".08s" }}>
-          <ErrorNote message={error} />
+          <ErrorNote message={validation ?? error} />
           {r && (
             <>
               <section className="panel" style={{ background: "var(--surface)", border: "1px solid var(--ink)", borderTopWidth: 2 }}>

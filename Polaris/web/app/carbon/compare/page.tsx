@@ -46,13 +46,14 @@ export default function Compare() {
   const diff = both ? changes(A.inputs, B.inputs, meta) : [];
 
   const exportJson = () => {
-    if (!meta) return;
-    const payload = { generated_by: "SCOPE · Team CarbonIQ", data_status: meta.data_source,
-      scenarios: Object.fromEntries(([["A", A, ra.data], ["B", B, rb.data]] as const).filter(([, s]) => s).map(([k, s, r]) => [k, { name: s!.name, inputs: s!.inputs, result: r }])),
-      assumptions: ledger(meta, A?.inputs ?? inputs) };
+    if (!meta || !both || ra.loading || rb.loading) return;
+    const payload = { generated_by: "SCOPE · Team CarbonIQ", data_status: meta.data_source, generated_at: new Date().toISOString(),
+      scenarios: Object.fromEntries(([["A", A, ra.data], ["B", B, rb.data]] as const).filter(([, s]) => s).map(([k, s, r]) => [k, { name: s!.name, saved_at: s!.savedAt, inputs: structuredClone(s!.inputs), result: r, assumptions: ledger(meta, s!.inputs), calculated_at: k === "A" ? ra.calculatedAt : rb.calculatedAt, input_fingerprint: k === "A" ? ra.snapshotKey : rb.snapshotKey }])),
+      calculation_version: ra.version };
     download("scope-scenarios.json", JSON.stringify(payload, null, 2), "application/json");
   };
   const exportCsv = () => {
+    if (!both || ra.loading || rb.loading) return;
     const rows = [...(A && ra.data ? resultRows(A.name, ra.data) : []), ...(B && rb.data ? resultRows(B.name, rb.data) : [])];
     download("scope-scenarios.csv", toCsv(rows), "text/csv");
   };
@@ -119,8 +120,8 @@ export default function Compare() {
         <Panel title="Take it with you" tick="var(--ink)">
           <div className="btns">
             <Link className="btn primary" href="/carbon/report">Open printable report</Link>
-            <button className="btn" onClick={exportCsv} disabled={!(A && ra.data) && !(B && rb.data)}>Download CSV</button>
-            <button className="btn" onClick={exportJson} disabled={!meta || (!A && !B)}>Download JSON with assumptions</button>
+            <button className="btn" onClick={exportCsv} disabled={!both || ra.loading || rb.loading}>Download CSV</button>
+            <button className="btn" onClick={exportJson} disabled={!meta || !both || ra.loading || rb.loading}>Download JSON with assumptions</button>
           </div>
           <p className="note">The JSON includes every factor, its source and its uncertainty, so a reviewer can re-run the numbers.</p>
         </Panel>

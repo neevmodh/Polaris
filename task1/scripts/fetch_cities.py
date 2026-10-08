@@ -64,7 +64,7 @@ class RangeFile(io.RawIOBase):
 def extract(date):
     cache=ROOT/'data/cities/raw'; cache.mkdir(parents=True,exist_ok=True)
     path=cache/f'{date}.json'
-    if path.exists(): return json.loads(path.read_text())
+    if path.exists(): return json.loads(path.read_text(encoding="utf-8"))
     url=BASE+f'CT2026.molefrac_glb3x2_{date}.nc'
     for attempt in range(3):
         try:

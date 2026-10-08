@@ -69,9 +69,9 @@ def map_paths():
 def map_component():
     assets=Path(__file__).parent/'assets'
     return st.components.v2.component('atmos_city_map',
-        html=(assets/'station_map.html').read_text(),
-        css=(assets/'station_map.css').read_text(),
-        js=(assets/'station_map.js').read_text())
+        html=(assets/'station_map.html').read_text(encoding="utf-8"),
+        css=(assets/'station_map.css').read_text(encoding="utf-8"),
+        js=(assets/'station_map.js').read_text(encoding="utf-8"))
 
 def use_station(code):
     st.session_state['source']='Regional CO₂ history'

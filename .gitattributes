@@ -1,0 +1,16 @@
+# Checksum-protected files must keep their exact bytes on every platform. Without this, a default Windows
+# checkout (core.autocrlf=true) rewrites them with CRLF and the manifest hashes no longer match.
+task1/data/** -text
+task1/outputs/** -text
+SCOPE/data/** -text
+SCOPE/results/** -text
+Task3/data/** -text
+Task3/models/** -text
+
+# Scripts that must run under a Unix shell, and sources that should be LF everywhere.
+*.sh text eol=lf
+*.py text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.json text eol=lf
+*.md text eol=lf

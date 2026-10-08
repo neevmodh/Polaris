@@ -75,7 +75,7 @@ def _plan(f):
 def meta(_):
     m = GRID / "models/metrics.json"
     return {"scenarios": list(SCENARIOS), "config": {k: CFG[k] for k in ("plant", "battery", "grid")},
-            "accuracy": json.loads(m.read_text()) if m.exists() else {},
+            "accuracy": json.loads(m.read_text(encoding="utf-8")) if m.exists() else {},
             "data_ready": DATA.exists(), "models_ready": all((GRID / f"models/{x}_xgb.joblib").exists()
                                                              for x in ("solar_available_kw", "wind_available_kw", "load_kw"))}
 

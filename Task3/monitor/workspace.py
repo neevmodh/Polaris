@@ -62,7 +62,7 @@ def load_reviews(path):
     path = Path(path)
     if not path.exists():
         return {}
-    return json.loads(path.read_text()).get("reviews", {})
+    return json.loads(path.read_text(encoding="utf-8")).get("reviews", {})
 
 
 def save_review(path, reviews, rid, state, note):
@@ -74,9 +74,14 @@ def save_review(path, reviews, rid, state, note):
                "updated_at": datetime.now(timezone.utc).isoformat()}}
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    temp = path.with_suffix(".tmp")
-    temp.write_text(json.dumps({"reviews": reviews}, indent=2))
-    temp.replace(path)
+    import os, tempfile                      # a unique temp file per write, so concurrent writers never share one
+    fd, name = tempfile.mkstemp(dir=path.parent, prefix=path.stem + ".", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps({"reviews": reviews}, indent=2))
+        os.replace(name, path)
+    finally:
+        if os.path.exists(name): os.unlink(name)
     return reviews
 
 

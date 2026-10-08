@@ -12,21 +12,24 @@ import { ErrorNote, PageHead, Panel } from "@/components/ui";
 export default function ReportPage() {
   const { inputs } = useStore();
   const { data: meta } = useGet<Meta>("/api/meta");
-  const { data: rep } = useGet<Report>("/api/report");
-  const { data: r, error } = usePost<CalcResult>("/api/calc", useMemo(() => toBody(inputs), [inputs]));
+  const { data: rep, error: repError } = useGet<Report>("/api/report");
+  const { data: r, error, loading, calculatedAt, version } = usePost<CalcResult>("/api/calc", useMemo(() => toBody(inputs), [inputs]));
   const rows = meta ? ledger(meta, inputs) : [];
   const synthetic = meta?.data_source !== "BRSR";
+  // The statement is one consistent snapshot: result, factor ledger and method notes all present, for the current inputs.
+  const ready = Boolean(r && meta && !loading && !error && (rep || repError));
   return (
     <>
       <PageHead eyebrow="Printable report" title="Footprint statement">
         A one-sheet summary of the current inputs. Use your browser&apos;s print dialog to save it as a PDF.
       </PageHead>
       <div className="btns noprint" style={{ marginBottom: 22 }}>
-        <button className="btn primary" onClick={() => window.print()}>Print or save as PDF</button>
+        <button className="btn primary" onClick={() => window.print()} disabled={!ready}>{ready ? "Print or save as PDF" : "Preparing the statement…"}</button>
       </div>
       <ErrorNote message={error} />
-      {r && (
+      {ready && r && (
         <div className="stack">
+          <p className="note">Calculated {calculatedAt ? new Date(calculatedAt).toLocaleString() : "now"}{version ? ` · engine ${version}` : ""} · inputs as shown below · these figures were frozen when this page finished loading.</p>
           <div className="kpis">
             {(["scope1", "scope2", "scope3", "total"] as const).map((k, i) => (
               <div className="kpi" key={k}><div className="k">{["Scope 1", "Scope 2", "Scope 3", "Total"][i]}</div><div className="v num">{fmtT(r.point[k])}<small>tCO₂e / yr</small></div><div className="d">P5–P95 {fmtT(r.range[k].p5)}–{fmtT(r.range[k].p95)}</div></div>

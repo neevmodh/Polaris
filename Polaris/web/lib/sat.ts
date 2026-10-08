@@ -34,6 +34,7 @@ export type SatSummary = {
 export type SatAnalysis = {
   summary: SatSummary; layer: string; image: string; legend: Legend | null; size: [number, number]; regions: Region[]; region_total: number;
   reviewed: number; key: string; scores_available: boolean; prior_used: boolean | null; seconds: number;
+  method: string | null; fallback: string | null; review_scope: "public demo" | "private";
 };
 export type SceneImages = { before: string; after: string; size: [number, number]; before_info: SceneInfo; after_info: SceneInfo };
 export type FetchJob = { state: "running" | "done" | "error"; log: string[]; case: string; error: string | null };

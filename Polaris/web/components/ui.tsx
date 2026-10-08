@@ -32,15 +32,11 @@ export function Panel({ title, tick, right, children, className = "" }: { title:
 
 /** Number field that lets you clear and retype (no stuck leading zeros), clamps to [0, max], and commits on every keystroke. */
 export function NumInput({ id, value, onChange, max = 1e10, step = "any" }: { id: string; value: number; onChange: (v: number) => void; max?: number; step?: string }) {
-  const [txt, setTxt] = useState<string | null>(null);        // non-null only while the user is editing
-  const shown = txt ?? (Number.isFinite(value) ? String(value) : "");
+  const shown = Number.isFinite(value) ? String(value) : "";
   return (
     <input id={id} type="number" inputMode="decimal" min={0} max={max} step={step} value={shown}
-      onFocus={() => setTxt(String(value))}
-      onBlur={() => setTxt(null)}
       onKeyDown={(e) => { if (["-", "+", "e", "E"].includes(e.key)) e.preventDefault(); }}
       onChange={(e) => {
-        setTxt(e.target.value);
         const v = e.target.value === "" ? 0 : Number(e.target.value);
         onChange(Number.isFinite(v) ? Math.min(Math.max(v, 0), max) : 0);
       }} />

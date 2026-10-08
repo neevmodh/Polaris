@@ -425,3 +425,4 @@ table.t tbody tr { transition: background .12s ease; } table.t tbody tr:hover td
 @media print { .panel, .kpi, .reading { box-shadow: none !important; transform: none !important; } .home-hero .title { -webkit-text-fill-color: currentColor; background: none; } body { background-image: none; } }
 .kpis { margin-top: 16px; margin-bottom: 8px; }
 .hero-star circle { fill: var(--surface); stroke: var(--brand); stroke-width: 1.2; }
+.answer.stale { opacity: .6; border-left-color: var(--warn); } .answer.stale::before { content: "STALE"; font: 700 11px var(--font-mono); letter-spacing: .1em; color: var(--warn); }

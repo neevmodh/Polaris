@@ -21,7 +21,7 @@ export default function Estimate() {
   const act = acts.includes(activity) ? activity : acts[0] ?? "";
   const ready = !!meta?.models_ready && !!act;
   const body = useMemo(() => ({ sector, activity: act, turnover_cr: turnover, employees: employees || null, renewable_share: renewable, year: 2026 }), [sector, act, turnover, employees, renewable]);
-  const { data, error, loading } = usePost<PredictResult>("/api/predict", body, { enabled: ready && turnover > 0 });
+  const { data, error, loading, snapshotKey, calculatedAt } = usePost<PredictResult>("/api/predict", body, { enabled: ready && turnover > 0 });
   const logT = Math.log10(Math.max(turnover, 1));
   const m = rep?.metrics;
   const synthetic = meta?.data_source !== "BRSR";
@@ -50,7 +50,7 @@ export default function Estimate() {
               <div className="lab" style={{ fontSize: 11, color: "var(--faint)", fontFamily: "var(--font-mono)" }}><span>₹1 Cr</span><span>₹10 lakh Cr</span></div>
             </div>
             <div className="fields">
-              <Num label="Turnover (exact)" unit="₹ crore" value={turnover} onChange={(v) => setTurnover(Math.max(v, 1))} />
+              <Num label="Turnover (exact)" unit="₹ crore" value={turnover} onChange={setTurnover} />
               <Num label="Employees (optional)" unit="people" value={employees} onChange={setEmployees} />
             </div>
             <Slider label="Renewable electricity share" value={renewable} min={0} max={0.95} step={0.01} onChange={setRenewable} format={(v) => pct(v)} />
@@ -64,7 +64,7 @@ export default function Estimate() {
           )}
         </div>
         <div className="stack sticky fade" style={{ animationDelay: ".08s" }}>
-          <ErrorNote message={error} />
+          <ErrorNote message={turnover <= 0 ? "Turnover must be greater than zero." : error} />
           {data?.warnings.map((w) => <div className="alert" key={w} role="alert"><span aria-hidden>⚠</span>{w}</div>)}
           {cards.map((c) => (
             <section key={c.key} className={`panel ${loading ? "busy" : ""}`}>
@@ -76,9 +76,9 @@ export default function Estimate() {
               </div>
             </section>
           ))}
-          {data && (
+          {data && !loading && !error && (
             <div className="btns">
-              <Link href="/plan/abatement" className="btn primary" onClick={() => setMl({ s1_t: data.s1.point, s2_t: data.s2.point, label: `${sector}, ₹${nf0.format(turnover)} Cr` })}>Plan abatement from this estimate →</Link>
+              <Link href="/plan/abatement" className="btn primary" onClick={() => setMl({ s1_t: data.s1.point, s2_t: data.s2.point, label: `${sector}, ₹${nf0.format(turnover)} Cr`, inputs: structuredClone(body), fingerprint: snapshotKey, calculatedAt })}>Plan abatement from this estimate →</Link>
             </div>
           )}
           {!data && !error && ready && <div className="skeleton" style={{ height: 260 }} />}

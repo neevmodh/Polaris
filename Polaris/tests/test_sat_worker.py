@@ -99,12 +99,12 @@ def test_regions_review_roundtrip_and_export(w):
 
 def test_upload_roundtrip_with_the_prepared_rasters(w):
     f = lambda n: base64.b64encode((TASK3 / "outputs/forest" / n).read_bytes()).decode()
-    up = w.call("upload", {"before_b64": f("before_8band.tif"), "after_b64": f("after_8band.tif"), "before_date": "2019-07-08", "after_date": "2024-07-21", "encoding": "float", "name": "Prepared pair"})
-    r = w.call("analyze", {"kind": "forest", "case": up["case"], "detector": "NDVI screening baseline"})
+    up = w.call("upload", {"before_b64": f("before_8band.tif"), "after_b64": f("after_8band.tif"), "before_date": "2019-07-08", "after_date": "2024-07-21", "encoding": "float", "_owner": "aaaaaaaaaaaaaaaa", "name": "Prepared pair"})
+    r = w.call("analyze", {"kind": "forest", "case": up["case"], "detector": "NDVI screening baseline", "_owner": "aaaaaaaaaaaaaaaa"})
     assert r["summary"]["region"] == "Prepared pair" and r["summary"]["candidate_loss_area_ha"] > 0 and r["prior_used"] is False
-    wrong = w.call("upload", {"before_b64": f("before_8band.tif"), "after_b64": f("after_8band.tif"), "before_date": "2024-07-21", "after_date": "2019-07-08"}, raw=True)
+    wrong = w.call("upload", {"before_b64": f("before_8band.tif"), "after_b64": f("after_8band.tif"), "before_date": "2024-07-21", "after_date": "2019-07-08", "_owner": "aaaaaaaaaaaaaaaa"}, raw=True)
     assert not wrong["ok"] and "later" in wrong["error"]
-    junk = w.call("upload", {"before_b64": base64.b64encode(b"not a tiff").decode(), "after_b64": base64.b64encode(b"x").decode(), "before_date": "2019-01-01", "after_date": "2024-01-01"}, raw=True)
+    junk = w.call("upload", {"before_b64": base64.b64encode(b"not a tiff").decode(), "after_b64": base64.b64encode(b"x").decode(), "before_date": "2019-01-01", "after_date": "2024-01-01", "_owner": "aaaaaaaaaaaaaaaa"}, raw=True)
     assert not junk["ok"]
 
 
@@ -114,3 +114,73 @@ def test_input_validation(w):
     r = w.call("fetch_start", {"bbox": [0, 0, 5, 5], "before": ["2020-01-01", "2020-02-01"], "after": ["2024-01-01", "2024-02-01"]}, raw=True)
     assert not r["ok"] and "0.3" in r["error"]                          # box too large for this prototype
     assert not w.call("fetch_status", {"job": "missing"}, raw=True)["ok"]
+
+
+# ---------------------------------------------------------------- regressions for the QA audit
+OWNER_A, OWNER_B = "aaaaaaaaaaaaaaaa", "bbbbbbbbbbbbbbbb"
+
+
+def _pair(w, owner, **over):
+    f = lambda n: base64.b64encode((TASK3 / "outputs/forest" / n).read_bytes()).decode()
+    args = {"before_b64": f("before_8band.tif"), "after_b64": f("after_8band.tif"), "before_date": "2019-07-08", "after_date": "2024-07-21",
+            "encoding": "float", "name": "Pair", "_owner": owner, **over}
+    return w.call("upload", args, raw=True)
+
+
+def test_upload_requires_a_session(w):
+    r = _pair(w, None)
+    assert not r["ok"] and "session" in r["error"]
+
+
+def test_upload_identity_covers_every_interpretation_choice(w):
+    """The case id used to hash only the first 4 KB, so payloads differing later, or read differently, collided."""
+    a = _pair(w, OWNER_A); b = _pair(w, OWNER_A, after_date="2024-08-01"); c = _pair(w, OWNER_A, name="Other label")
+    assert a["ok"] and b["ok"] and c["ok"]
+    ids = {a["result"]["case"], b["result"]["case"], c["result"]["case"]}
+    assert len(ids) == 3, "dates and labels are part of the identity"
+    assert _pair(w, OWNER_A)["result"]["case"] == a["result"]["case"], "identical input reuses its own case"
+
+
+def test_another_session_cannot_see_or_use_a_private_case(w):
+    mine = _pair(w, OWNER_A)["result"]["case"]
+    other = w.call("analyze", {"kind": "forest", "case": mine, "detector": "NDVI screening baseline", "_owner": OWNER_B}, raw=True)
+    assert not other["ok"] and "not available" in other["error"]
+    none = w.call("analyze", {"kind": "forest", "case": mine, "detector": "NDVI screening baseline"}, raw=True)
+    assert not none["ok"], "no session at all is treated the same way"
+    assert all(c["id"] != mine for c in w.call("meta", {"_owner": OWNER_B})["custom"])
+    # the same bytes uploaded by another visitor become a separate case with a separate review store
+    theirs = _pair(w, OWNER_B)["result"]["case"]
+    assert theirs != mine
+
+
+def test_concurrent_reviews_are_both_kept(w):
+    case = _pair(w, OWNER_A, name="Review race")["result"]["case"]
+    r = w.call("analyze", {"kind": "forest", "case": case, "detector": "NDVI screening baseline", "_owner": OWNER_A})
+    regions = [x["region"] for x in r["regions"][:2]]
+    assert len(regions) == 2
+    outs = []
+
+    def save(rid):
+        outs.append(w.call("review", {"kind": "forest", "case": case, "detector": "NDVI screening baseline", "region": rid,
+                                      "status": "False positive", "note": f"note {rid}", "_owner": OWNER_A}, raw=True))
+    ts = [threading.Thread(target=save, args=(rid,)) for rid in regions]
+    [t.start() for t in ts]; [t.join() for t in ts]
+    assert all(o["ok"] for o in outs)
+    after = w.call("review", {"kind": "forest", "case": case, "detector": "NDVI screening baseline", "region": regions[0],
+                              "status": "False positive", "note": f"note {regions[0]}", "_owner": OWNER_A})
+    assert after["reviewed"] == 2, "saving one review must not erase a concurrent one"
+    assert after["scope"] == "private"
+
+
+def test_demo_cases_say_their_reviews_are_public(w):
+    r = w.call("analyze", {"kind": "forest", "case": "forest", "detector": "NDVI screening baseline"})
+    assert r["review_scope"] == "public demo"
+
+
+def test_the_effective_water_method_is_reported(w):
+    r = w.call("analyze", {"kind": "lake", "case": "lake", "water": "Pretrained U-Net"})
+    assert r["method"] in ("Pretrained U-Net", "Spectral open-water mask")
+    if r["method"] == "Spectral open-water mask":
+        assert "not installed" in r["fallback"], "a fallback must say why the requested method was not used"
+    else:
+        assert r["fallback"] is None

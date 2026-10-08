@@ -65,7 +65,7 @@ if __name__ == "__main__":
         if res.get("status") == "scored":
             print("   RF  F1 %.3f P %.3f R %.3f AP %.3f | NDVI F1 %.3f P %.3f R %.3f" % (res["random_forest"]["f1"], res["random_forest"]["precision"], res["random_forest"]["recall"], res["random_forest"]["average_precision"], res["ndvi_baseline"]["f1"], res["ndvi_baseline"]["precision"], res["ndvi_baseline"]["recall"]), flush=True)
         results.append(res)
-    saved = json.loads((TASK3 / "models" / "metrics.json").read_text())
+    saved = json.loads((TASK3 / "models" / "metrics.json").read_text(encoding="utf-8"))
     (OUT / "cross_region.json").write_text(json.dumps({"in_region_holdout": {"rf": {k: saved["rf"][k] for k in ("precision", "recall", "f1", "iou", "average_precision")},
         "ndvi_baseline": {k: saved["ndvi_baseline"][k] for k in ("precision", "recall", "f1", "iou", "average_precision")}, "note": saved["holdout_bounds"]},
         "regions": results, "model": saved["model"], "trained_on": "Rondonia 2019 -> 2024 western 70%"}, indent=2))

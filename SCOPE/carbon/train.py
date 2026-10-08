@@ -168,7 +168,7 @@ def split(df):
 
 def run(data="data/processed/company_year.parquet", models_dir="models", results_dir="results", n_iter=N_ITER, source=None):
     src_file = Path(data).parent / "DATA_SOURCE.txt"
-    source = source or (src_file.read_text().strip() if src_file.exists() else "UNKNOWN")
+    source = source or (src_file.read_text(encoding="utf-8").strip() if src_file.exists() else "UNKNOWN")
     df = add_features(pd.read_parquet(data)); num = usable_numeric(df); feats = CAT + num
     train, calib, test = split(df)
     print(f"[{source}] features={feats} rows train/calib/test={len(train)}/{len(calib)}/{len(test)} "

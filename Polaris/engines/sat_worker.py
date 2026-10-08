@@ -3,7 +3,7 @@
 It only reads Task3's core modules (scenes, analysis, learning, indices, exports, water_model, catalog, workspace);
 it never writes into Task3. Everything it creates (custom scenes, uploads, reviews, U-Net cache) lives in Polaris/data.
 Requests are handled on a small thread pool so a slow fetch or U-Net run does not block other calls."""
-import base64, hashlib, json, math, os, sys, threading, time, traceback, uuid
+import re, base64, contextvars, hashlib, json, math, os, sys, threading, time, traceback, uuid
 from concurrent.futures import ThreadPoolExecutor
 from io import BytesIO
 from pathlib import Path
@@ -30,6 +30,23 @@ MODEL = TASK3 / "models" / "forest_rf.joblib"
 CASES = {"forest": "forest", "lake": "lake"}
 _scenes, _analyses, _jobs = {}, {}, {}
 _slock, _alock = threading.Lock(), threading.Lock()
+_review_lock = threading.Lock()                          # one read-modify-write on any review file at a time
+_owner = contextvars.ContextVar("polaris_owner", default=None)
+JOB_TTL_S = 3600
+MAX_INFLIGHT = 12                                        # requests running or queued; beyond this the engine says it is busy
+_slots = threading.BoundedSemaphore(MAX_INFLIGHT)
+
+
+def owner_ns():
+    """The visitor this request belongs to. Preset demo cases are public; every uploaded or fetched case is private to one owner."""
+    o = _owner.get()
+    return o if o and re.fullmatch(r"[0-9a-f]{16}", o) else None
+
+
+def _owned_key(owner, *parts):
+    h = hashlib.sha256(); h.update((owner or "anonymous").encode()); h.update(b"\0")
+    for x in parts: h.update(x if isinstance(x, bytes) else str(x).encode()); h.update(b"\0")
+    return h.hexdigest()[:16]
 _unet_lock = threading.Lock()
 
 
@@ -89,15 +106,20 @@ def scene_info(s, label):
 
 # ----------------------------------------------------------------- cases
 def load_case(case):
-    with _slock:
-        if case in _scenes: return _scenes[case]
-    import re
     if case in ("forest", "lake"):
         folder = TASK3 / "data" / case
     elif re.fullmatch(r"(custom|upload):[0-9a-f]{16}", case):
         folder = DATA / ("custom" if case.startswith("custom") else "uploads") / case.split(":", 1)[1]
     else:
         raise ValueError(f"Unknown case {case!r}")
+    if case not in ("forest", "lake"):
+        # Ownership is checked on EVERY call, before the in-memory cache is consulted: a cached pair must not be
+        # reachable by a session that does not own it.
+        mine = owner_ns(); tag = folder / "owner.txt"
+        if not mine or not tag.exists() or tag.read_text().strip() != mine:
+            raise ValueError("This observation pair is not available to this session.")
+    with _slock:
+        if case in _scenes: return _scenes[case]
     if not (folder / "before.npz").exists() or not (folder / "after.npz").exists():
         raise ValueError("This observation pair is not cached. Prepare it first.")
     pair = (Scene.load(folder / "before.npz"), Scene.load(folder / "after.npz"))
@@ -114,9 +136,12 @@ def case_card(case, kind, name, location, folder_meta=None):
 
 
 def list_custom():
-    out = []
+    out, mine = [], owner_ns()
+    if not mine: return out
     for p in sorted((DATA / "custom").glob("*/before.npz")):
         try:
+            tag = p.parent / "owner.txt"
+            if not tag.exists() or tag.read_text().strip() != mine: continue
             b = Scene.load(p); key = p.parent.name
             out.append({"id": f"custom:{key}", "name": b.metadata.get("region", key), "kind": b.metadata.get("kind", "forest"),
                         "bbox": b.metadata.get("bbox_wgs84"), "before": b.metadata["datetime"][:10]})
@@ -132,7 +157,7 @@ def meta(_):
         except Exception as exc: cases.append({"id": kind, "kind": kind, "name": p["name"], "error": str(exc)})
     metrics_path = TASK3 / "models" / "metrics.json"
     return {"cases": cases, "custom": list_custom(), "forest_model": MODEL.exists(), "unet": water_model.available(),
-            "metrics": json.loads(metrics_path.read_text()) if metrics_path.exists() else None,
+            "metrics": json.loads(metrics_path.read_text(encoding="utf-8")) if metrics_path.exists() else None,
             "review_states": REVIEW_STATES, "presets": {k: {"bbox": v["bbox"], "before": v["before"], "after": v["after"], "name": v["name"]} for k, v in PRESETS.items()}}
 
 
@@ -170,9 +195,14 @@ def run_analysis(a):
         use_model = p["detector"] == "Trained random forest" and MODEL.exists()
         r = forest_analysis(before, after, p["drop"], p["vegetation"], p["patches"], MODEL if use_model else None, p["threshold"], prior)
         r["prior_used"] = prior is not None; mask = r["loss"]
+        r["detector_used"] = "Trained random forest" if use_model else "NDVI screening baseline"
+        r["detector_fallback"] = "The trained forest model file is missing, so the NDVI screening baseline was used instead." if p["detector"] == "Trained random forest" and not use_model else None
     else:
-        wm = unet_masks(p["case"], before, after) if p["water"] == "Pretrained U-Net" and water_model.available() else None
+        want_unet = p["water"] == "Pretrained U-Net"
+        wm = unet_masks(p["case"], before, after) if want_unet and water_model.available() else None
         r = lake_analysis(before, after, p["mndwi"], p["algae"], wm); mask = r["alerts"]
+        r["water_method"] = "Pretrained U-Net" if wm is not None else "Spectral open-water mask"
+        r["water_fallback"] = "The pretrained U-Net is not installed on this server, so the spectral open-water mask was used instead." if want_unet and wm is None else None
     delta = r["delta"]
     rows, groups = region_records(mask, after, delta, r.get("scores"))
     r.update(mask=mask, rows=rows, groups=groups, key=analysis_key(before, after, mask), params=p)
@@ -201,7 +231,7 @@ def layer_image(r, layer, before, after):
 
 def regions_payload(r, after, limit=60):
     rows = r["rows"]; h, w = after.shape
-    reviews = load_reviews(DATA / "reviews" / f"{r['key']}.json")
+    reviews = load_reviews(review_path(r))
     out = []
     for rec in rows.head(limit).to_dict("records"):
         rid = int(rec["region"]); rr, cc = np.where(r["groups"] == rid)
@@ -219,6 +249,8 @@ def analyze(a):
     return {"summary": s, "layer": a.get("layer"), "image": png_url(img), "legend": legend, "size": [after.shape[1], after.shape[0]],
             "regions": regions, "region_total": total, "reviewed": reviewed, "key": r["key"], "table": r.get("table"),
             "model_metrics": r.get("metrics"), "scores_available": r.get("scores") is not None, "prior_used": r.get("prior_used"),
+            "review_scope": "public demo" if r["params"]["case"] in ("forest", "lake") else "private",
+            "method": r.get("water_method") or r.get("detector_used"), "fallback": r.get("water_fallback") or r.get("detector_fallback"),
             "seconds": round(time.time() - t0, 2)}
 
 
@@ -236,15 +268,23 @@ def crop(a):
     return {"before": png_url(rgb(before)[ys, xs]), "after": png_url(overlay(after, r["groups"] == rid)[ys, xs])}
 
 
+def review_path(r):
+    """Demo cases share one public review store; any other case keeps its reviews under its owner."""
+    ns = "public" if r["params"]["case"] in ("forest", "lake") else (owner_ns() or "none")
+    return DATA / "reviews" / ns / f"{r['key']}.json"
+
+
 def review(a):
-    r = run_analysis(a); path = DATA / "reviews" / f"{r['key']}.json"
-    save_review(path, load_reviews(path), int(a["region"]), a["status"], str(a.get("note", ""))[:2000])
-    return {"ok": True, "reviewed": sum(1 for v in load_reviews(path).values() if v.get("status") != "Needs review")}
+    r = run_analysis(a); path = review_path(r)
+    with _review_lock:                                   # load, change and save as one step, or a concurrent save is lost
+        save_review(path, load_reviews(path), int(a["region"]), a["status"], str(a.get("note", ""))[:2000])
+        done = sum(1 for v in load_reviews(path).values() if v.get("status") != "Needs review")
+    return {"ok": True, "reviewed": done, "scope": "public demo" if r["params"]["case"] in ("forest", "lake") else "private"}
 
 
 def export(a):
     r = run_analysis(a); before, after = load_case(r["params"]["case"]); kind = r["params"]["kind"]
-    reviews = load_reviews(DATA / "reviews" / f"{r['key']}.json")
+    reviews = load_reviews(review_path(r))
     queue = r["rows"].assign(status=[reviews.get(str(int(i)), {}).get("status", "Needs review") for i in r["rows"].region],
                              note=[reviews.get(str(int(i)), {}).get("note", "") for i in r["rows"].region])
     geo = reviewed_geojson(r["groups"], after, r["rows"], reviews)
@@ -268,11 +308,15 @@ def fetch_start(a):
     bbox = [float(x) for x in a["bbox"]]; validate_bbox(bbox)
     before_range, after_range = [str(x) for x in a["before"]], [str(x) for x in a["after"]]
     kind = a.get("kind", "forest"); name = str(a.get("name") or "Custom region")[:60]
-    key = hashlib.sha256(json.dumps([bbox, before_range, after_range]).encode()).hexdigest()[:16]
+    mine = owner_ns()
+    if not mine: raise ValueError("A session is required to fetch a region.")
+    _expire_jobs()
+    key = _owned_key(mine, json.dumps([bbox, before_range, after_range]))
     folder = DATA / "custom" / key; job = uuid.uuid4().hex[:10]
-    _jobs[job] = {"state": "running", "log": [], "case": f"custom:{key}", "error": None}
+    _jobs[job] = {"state": "running", "log": [], "case": f"custom:{key}", "error": None, "owner": mine, "t": time.time()}
 
     def work():
+        _owner.set(mine)
         try:
             if (folder / "before.npz").exists() and (folder / "after.npz").exists():
                 _jobs[job]["log"].append("Using the cached pair for this exact request.")
@@ -280,6 +324,7 @@ def fetch_start(a):
                 scenes = fetch_pair(bbox, before_range, after_range, folder, log=lambda s: _jobs[job]["log"].append(str(s)))
                 for label, sc in zip(["before", "after"], scenes):
                     sc.metadata.update(region=name, kind=kind); sc.save(folder / f"{label}.npz")
+                (folder / "owner.txt").write_text(mine)
             with _slock: _scenes.pop(f"custom:{key}", None)
             load_case(f"custom:{key}"); _jobs[job]["state"] = "done"
         except Exception as exc:
@@ -288,10 +333,16 @@ def fetch_start(a):
     return {"job": job, "case": f"custom:{key}"}
 
 
+def _expire_jobs():
+    now = time.time()
+    for k in [k for k, v in _jobs.items() if now - v.get("t", now) > JOB_TTL_S]: _jobs.pop(k, None)
+
+
 def fetch_status(a):
+    _expire_jobs()
     j = _jobs.get(a["job"])
-    if not j: raise ValueError("Unknown job.")
-    return {**j, "log": j["log"][-12:]}
+    if not j or j.get("owner") != owner_ns(): raise ValueError("Unknown job.")
+    return {k: v for k, v in {**j, "log": j["log"][-12:]}.items() if k not in ("owner", "t")}
 
 
 def upload(a):
@@ -302,9 +353,14 @@ def upload(a):
     assert_aligned(b, af)
     name = str(a.get("name") or "Uploaded pair")[:60]
     for s in (b, af): s.metadata.update(region=name)
-    key = hashlib.sha256(raw[0][:4096] + raw[1][:4096] + str(len(raw[0])).encode()).hexdigest()[:16]
-    folder = DATA / "uploads" / key; b.save(folder / "before.npz"); af.save(folder / "after.npz")
-    with _slock: _scenes.pop(f"upload:{key}", None)
+    mine = owner_ns()
+    if not mine: raise ValueError("A session is required to upload rasters.")
+    # Identity is every byte of both files plus everything that changes how they are read, so two different
+    # payloads can never share a case, and an identical one reuses its own analyses safely.
+    key = _owned_key(mine, raw[0], raw[1], a.get("encoding", "float"), a["before_date"], a["after_date"], a.get("kind", "forest"), name)
+    folder = DATA / "uploads" / key
+    if not (folder / "before.npz").exists():
+        b.save(folder / "before.npz"); af.save(folder / "after.npz"); (folder / "owner.txt").write_text(mine)
     return {"case": f"upload:{key}", "card": case_card(f"upload:{key}", a.get("kind", "forest"), name, "User-supplied rasters")}
 
 
@@ -400,20 +456,28 @@ def handle(line, pool_out):
     rid = None
     try:
         req = json.loads(line); rid = req.get("id")
-        msg = {"id": rid, "ok": True, "result": clean(CMDS[req["cmd"]](req.get("args") or {}))}
+        args = dict(req.get("args") or {}); _owner.set(args.pop("_owner", None))
+        msg = {"id": rid, "ok": True, "result": clean(CMDS[req["cmd"]](args))}
     except (ValueError, KeyError, TypeError) as e:
         msg = {"id": rid, "ok": False, "kind": "input", "error": str(e.args[0]) if e.args else str(e)}
     except Exception as e:
         traceback.print_exc(); msg = {"id": rid, "ok": False, "kind": "internal", "error": f"{type(e).__name__}: {e}"}
     with _lock:
         print(json.dumps(msg, allow_nan=False), file=_proto, flush=True)
+    _slots.release()
 
 
 def main():
     pool = ThreadPoolExecutor(max_workers=4)
     with _lock: print(json.dumps({"ready": True}), file=_proto, flush=True)
     for line in sys.stdin:
-        if line.strip(): pool.submit(handle, line.strip(), None)
+        if not line.strip(): continue
+        if not _slots.acquire(blocking=False):           # bounded work: refuse instead of queueing without limit
+            try: rid = json.loads(line).get("id")
+            except Exception: rid = None
+            with _lock: print(json.dumps({"id": rid, "ok": False, "kind": "busy", "error": "The satellite engine is busy. Try again in a moment."}), file=_proto, flush=True)
+            continue
+        pool.submit(handle, line.strip(), None)
 
 
 if __name__ == "__main__":

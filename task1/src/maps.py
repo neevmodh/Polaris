@@ -12,7 +12,7 @@ def project(longitude, latitude):
     return (lon + 180) * 1000 / 360, (90 - lat) * 500 / 180
 
 def world_paths():
-    world = json.loads((ROOT / "assets/world.geojson").read_text())
+    world = json.loads((ROOT / "assets/world.geojson").read_text(encoding="utf-8"))
     paths = []
     for feature in world["features"]:
         geometry = feature["geometry"]

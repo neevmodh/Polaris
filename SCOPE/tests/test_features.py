@@ -87,7 +87,7 @@ def test_runway_validates_inputs(kw):
 # ---------------------------------------------------------------- stress report
 @pytest.mark.skipif(not (ROOT / "results/stress.json").exists(), reason="run `make stress` first")
 def test_stress_report_all_gated_tests_pass_and_limits_are_disclosed():
-    s = json.loads((ROOT / "results/stress.json").read_text())
+    s = json.loads((ROOT / "results/stress.json").read_text(encoding="utf-8"))
     failed = [t["name"] for t in s["tests"] if t["passed"] is False]
     assert not failed, failed
     assert s["passed"] == s["total"] and any(t["group"] == "limits" for t in s["tests"])
