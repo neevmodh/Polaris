@@ -365,19 +365,6 @@ Air selection minimizes **calibration RMSE among ML candidates**, without choosi
 
 Access to data does not validate a model for a new city, lake, company or power system. Follow source citations and terms when redistributing data.
 
-### Related GitHub repositories and attribution
-
-| Repository | Actual use |
-|---|---|
-| [AwasthiAshutosh/TerraVision](https://github.com/AwasthiAshutosh/TerraVision) · MIT | Adapted SCL masking, NDVI screening and dashboard workflow |
-| [NightSongs/Forest-CD](https://github.com/NightSongs/Forest-CD) · MIT | Paired-image research reference; its network is not the executed forest model |
-| [Iulia-plesu/lake-detection-water-quality](https://github.com/Iulia-plesu/lake-detection-water-quality) · Apache-2.0 | Optional U-Net architecture / checkpoint and normalization reference |
-| [RAJohansen/waterquality](https://github.com/RAJohansen/waterquality) · MIT | Spectral ratio forms ported to NumPy with nearby Sentinel-2 bands |
-| [Element84/earth-search](https://github.com/Element84/earth-search) | Public catalog and Sentinel asset-access documentation |
-| [stanfordmlgroup/methane-gapfill-ml](https://github.com/stanfordmlgroup/methane-gapfill-ml) | Atmospheric ML research context; methane-flux gap filling differs from this CO₂ forecast |
-
-Exact satellite revisions, licenses, modifications and U-Net SHA256 are in [THIRD_PARTY_NOTICES.md](Task3/THIRD_PARTY_NOTICES.md). Reference checkouts are not committed. Upstream models and datasets retain their own attribution and licenses.
-
 ## Quick start
 
 ### Option A · Docker
